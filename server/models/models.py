@@ -19,6 +19,6 @@ class VectorStore(BaseModel, ABC):
         pass
 
     @abstractmethod
-    async def query(self, question: str) -> Any:
+    async def answer_question(self, question: str) -> str:
         pass
 

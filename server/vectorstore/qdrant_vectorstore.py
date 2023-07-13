@@ -1,5 +1,5 @@
 from models.models import Document as PsychicDocument, VectorStore
-from typing import List, Any
+from typing import List, Any, Optional
 import uuid
 from langchain.vectorstores import Qdrant
 from qdrant_client import QdrantClient
@@ -7,13 +7,21 @@ from langchain.docstore.document import Document
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
-from qdrant_client.models import PointStruct
+from qdrant_client.models import PointStruct, Distance, VectorParams
+
 
 
 embeddings = HuggingFaceEmbeddings(model_name=os.environ.get("embeddings_model") or "all-MiniLM-L6-v2")
 embeddings_dimension = 384
 
 class QdrantVectorStore(VectorStore):
+
+    client: Optional[QdrantClient] = None
+    collection_name: Optional[str] = None
+
+    class Config:
+        arbitrary_types_allowed = True
+
     def __init__(self):
         
         # self.client = Qdrant.from_documents(
@@ -23,8 +31,13 @@ class QdrantVectorStore(VectorStore):
         #     collection_name="my_documents",
         # )
 
+        super().__init__()
+        
         self.client = QdrantClient(path="/tmp/local_qdrant")
-        self.client.create_collection(collection_name="my_documents", dimension=embeddings_dimension)
+        self.client.recreate_collection(
+            collection_name="my_documents",
+            vectors_config=VectorParams(size=embeddings_dimension, distance=Distance.COSINE) 
+        )
         self.collection_name = "my_documents"
 
     async def upsert(self, documents: List[PsychicDocument]) -> bool:

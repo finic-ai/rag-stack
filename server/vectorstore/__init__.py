@@ -1,1 +1,1 @@
-from .chroma_vectorstore import ChromaVectorStore
+from .qdrant_vectorstore import QdrantVectorStore

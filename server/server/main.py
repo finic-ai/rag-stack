@@ -17,7 +17,7 @@ from models.api import (
 
 import uuid
 from connectors import FileConnector
-from vectorstore import ChromaVectorStore
+from vectorstore import QdrantVectorStore
 
 
 
@@ -31,7 +31,7 @@ app.add_middleware(
 )
 
 bearer_scheme = HTTPBearer()
-vector_store = ChromaVectorStore()
+vector_store = QdrantVectorStore()
 
 def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
 
