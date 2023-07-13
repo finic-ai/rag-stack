@@ -15,7 +15,6 @@ from models.api import (
     AskQuestionResponse,
 )
 
-from appstatestore.statestore import StateStore
 import uuid
 from connectors import FileConnector
 from vectorstore import ChromaVectorStore
