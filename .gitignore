@@ -1,0 +1,4 @@
+.vercel
+/debug
+.vscode
+.env
