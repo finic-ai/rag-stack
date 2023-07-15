@@ -7,7 +7,7 @@ from langchain.docstore.document import Document
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
-from qdrant_client.models import PointStruct, Distance, VectorParams
+from qdrant_client.models import PointStruct, Distance, VectorParams, ScoredPoint
 
 
 
@@ -33,7 +33,7 @@ class QdrantVectorStore(VectorStore):
 
         super().__init__()
         
-        self.client = QdrantClient(path="/tmp/local_qdrant")
+        self.client = QdrantClient(url="http://localhost:6333")
         self.client.recreate_collection(
             collection_name="my_documents",
             vectors_config=VectorParams(size=embeddings_dimension, distance=Distance.COSINE) 
@@ -58,18 +58,17 @@ class QdrantVectorStore(VectorStore):
             if doc.metadata["id"] not in seen_docs:
                 doc_id = doc.metadata["id"]
                 seen_docs[doc.metadata["id"]] = 1
-                chunk_id = f"{doc_id}_1" 
+                chunk_id = uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}_1")
             else:
                 doc_id = doc.metadata["id"]
                 seen_docs[doc.metadata["id"]] += 1
-                chunk_id = f"{doc_id}_{seen_docs[doc.metadata['id']]}"
+                chunk_id = uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}_{seen_docs[doc.metadata['id']]}")
 
             vector = embeddings.embed_documents([doc.page_content])[0]
 
 
-
             points.append(PointStruct(
-                id=chunk_id,
+                id=str(chunk_id),
                 payload={
                     "metadata": {
                         "title": doc.metadata["title"],
@@ -83,12 +82,20 @@ class QdrantVectorStore(VectorStore):
                 vector=vector
             ))
 
-
         self.client.upsert(
             collection_name=self.collection_name,
             points=points
         )
-        return 
+        return True
+    
+    async def query(self, query: str) -> List[PsychicDocument]:
+        query_vector = embeddings.embed_query(query)
+        results = self.client.search(
+            collection_name=self.collection_name,
+            query_vector=query_vector,
+            limit=5
+        )
+        return results
 
-    async def answer_question(self, question: str) -> str:
-        return "42"
+    async def answer_question(self, question: str) -> List[ScoredPoint]:
+        return "answer"

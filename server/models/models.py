@@ -17,8 +17,13 @@ class VectorStore(BaseModel, ABC):
     @abstractmethod
     async def upsert(self, documents: List[Document]) -> bool:
         pass
-
+    
     @abstractmethod
-    async def answer_question(self, question: str) -> str:
+    async def query(self, query: str) -> List[Document]:
         pass
 
+class LLM(BaseModel, ABC):
+
+    @abstractmethod
+    def ask(self, documents: List[str], question: str) -> List[List[float]]:
+        pass

@@ -1,10 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { ChangeEvent, useState, useRef, useEffect } from 'react'
 import { Button, TextInput, Spinner } from 'flowbite-react'
 import { FaRobot, FaUser, FaPaperclip } from "react-icons/fa";
+
+import { upsertFile } from '../utils';
 
 const ChatComponent: React.FC = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [messages, setMessages] = useState<Array<MessageProps>>([
     {
       message: {
@@ -38,13 +42,35 @@ const ChatComponent: React.FC = () => {
     // setLoading(false);
   };
 
+  const handleFileUpload = async (files: FileList | null) => {
+    console.log(files)
+
+    if (files) {
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+
+      // Now you can use `formData` to upload the files to a server.
+      // For example, using the fetch API:
+      console.log("Files ready to be uploaded: ", selectedFiles);
+      upsertFile(formData);
+    }
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    setSelectedFiles(files);
+    handleFileUpload(files);
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   return (
     <>
-      <div className="h-[500px] w-full bg-gray-200 overflow-y-auto ">
+      <div className="h-[500px] w-full bg-gray-200 overflow-y-auto text-gray-900">
         {messages.map((message, index) => (
           <Message
             key={index}
@@ -57,9 +83,12 @@ const ChatComponent: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="p-4 border-t border-gray-300">
         <div className="flex items-center">
-          <Button className="mr-2" gradientDuoTone="purpleToBlue">
-            <FaPaperclip size="1.2em" className="p-0" />
-          </Button>
+          <label>
+            <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleFileChange}></input>
+            <Button type="file" className="mr-2" gradientDuoTone="purpleToBlue" onClick={() => fileInputRef.current?.click()}>
+              <FaPaperclip size="1.2em" className="p-0" />
+            </Button>
+          </label>
           <TextInput
             type="text"
             value={input}

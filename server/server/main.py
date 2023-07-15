@@ -18,7 +18,7 @@ from models.api import (
 import uuid
 from connectors import FileConnector
 from vectorstore import QdrantVectorStore
-
+from llm import Gpt4AllLLM
 
 
 app = FastAPI()
@@ -32,9 +32,9 @@ app.add_middleware(
 
 bearer_scheme = HTTPBearer()
 vector_store = QdrantVectorStore()
+llm = Gpt4AllLLM()
 
 def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
-
     api_key = os.environ.get("API_KEY")
 
     if api_key is None:
@@ -51,11 +51,11 @@ def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_sc
 )
 async def upsert_files(
     files: List[UploadFile] = File(...),
-    auth_success: bool = Depends(validate_token)
+    # auth_success: bool = Depends(validate_token)
 ):
     try:
         docs = FileConnector(files).load()
-        success = vector_store.upsert(docs)
+        success = await vector_store.upsert(docs)
         response = UpsertFilesResponse(success=success)
         return response
     except Exception as e:
@@ -69,11 +69,12 @@ async def upsert_files(
 )
 async def get_connector_status(
     request: AskQuestionRequest = Body(...),
-    auth_success: bool = Depends(validate_token)
+    # auth_success: bool = Depends(validate_token)
 ):
     try:
         question = request.question
-        answer = await vector_store.answer_question(question)
+        documents = vector_store.query(question)
+        answer = await llm.ask(documents, question)
         return AskQuestionResponse(answer=answer)
     except Exception as e:
         print(e)
