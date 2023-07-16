@@ -1,0 +1,8 @@
+torch
+peft
+sentencepiece
+accelerate
+bitsandbytes
+einops
+scipy
+git+https://github.com/huggingface/transformers.git

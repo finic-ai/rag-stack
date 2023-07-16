@@ -96,6 +96,3 @@ class QdrantVectorStore(VectorStore):
             limit=5
         )
         return results
-
-    async def answer_question(self, question: str) -> List[ScoredPoint]:
-        return "answer"

@@ -67,13 +67,13 @@ async def upsert_files(
     "/ask-question",
     response_model=AskQuestionResponse,
 )
-async def get_connector_status(
+async def ask_question(
     request: AskQuestionRequest = Body(...),
     # auth_success: bool = Depends(validate_token)
 ):
     try:
         question = request.question
-        documents = vector_store.query(question)
+        documents = await vector_store.query(question)
         answer = await llm.ask(documents, question)
         return AskQuestionResponse(answer=answer)
     except Exception as e:
