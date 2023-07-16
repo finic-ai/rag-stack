@@ -21,13 +21,14 @@ cleanup() {
 trap cleanup EXIT SIGINT
 
 echo 'Starting RagStack in development mode...'
-echo '💻 Starting UI...'
+printf '\n💻 Starting UI...\n'
 cd ragstack-ui
 npm install
 npm run dev > /dev/null 2>&1 &
 npm_pid=$! 
-echo '\n💠 Starting Qdrant...'
+printf '\n💠 Starting Qdrant...\n'
 docker run -d --name qdrant -p 6333:6333 qdrant/qdrant:v1.3.0
-echo '\n🤖 Starting RAG server...'
+printf '\n🤖 Starting RAG server...\n'
 cd ../server
+poetry install
 poetry run start

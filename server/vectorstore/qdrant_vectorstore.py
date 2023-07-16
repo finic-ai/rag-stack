@@ -1,17 +1,18 @@
+import os
 from models.models import Document as PsychicDocument, VectorStore
 from typing import List, Any, Optional
 import uuid
 from langchain.vectorstores import Qdrant
 from qdrant_client import QdrantClient
 from langchain.docstore.document import Document
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
 from qdrant_client.models import PointStruct, Distance, VectorParams, ScoredPoint
 
 
 
-embeddings = HuggingFaceEmbeddings(model_name=os.environ.get("embeddings_model") or "all-MiniLM-L6-v2")
+embeddings_model = SentenceTransformer(os.environ.get("embeddings_model") or "all-MiniLM-L6-v2")
 embeddings_dimension = 384
 
 class QdrantVectorStore(VectorStore):
@@ -32,8 +33,11 @@ class QdrantVectorStore(VectorStore):
         # )
 
         super().__init__()
-        
-        self.client = QdrantClient(url="http://localhost:6333")
+        if not os.getenv("QDRANT_URL"):
+            raise Exception("QDRANT_URL must be set as an environment variable.")
+        qdrant_port = os.getenv("QDRANT_PORT") or "6333"
+        qdrant_url = os.getenv("QDRANT_URL") + ":" + qdrant_port
+        self.client = QdrantClient(url=qdrant_url)
         self.client.recreate_collection(
             collection_name="my_documents",
             vectors_config=VectorParams(size=embeddings_dimension, distance=Distance.COSINE) 
@@ -64,7 +68,10 @@ class QdrantVectorStore(VectorStore):
                 seen_docs[doc.metadata["id"]] += 1
                 chunk_id = uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}_{seen_docs[doc.metadata['id']]}")
 
-            vector = embeddings.embed_documents([doc.page_content])[0]
+            # TODO: Fix this so that the vector output is of the format PointStruct expects
+            vector = embeddings_model.encode([doc.page_content])[0]
+            import pdb
+            pdb.set_trace()
 
 
             points.append(PointStruct(

@@ -11,37 +11,14 @@ fastapi = "^0.92.0"
 uvicorn = "^0.20.0"
 python-dotenv = "^0.21.1"
 pydantic = "^1.10.5"
-tenacity = "^8.2.1"
-tiktoken = "^0.3.3"
-numpy = "^1.24.2"
-docx2txt = "^0.8"
-PyPDF2 = "^3.0.1"
-python-pptx = "^0.6.21"
-python-multipart = "^0.0.6"
-arrow = "^1.2.3"
-markdownify = "^0.11.6"
 langchain = "^0.0.129"
-python-docx = "^0.8.11"
-pygithub = "^1.58.1"
-markdown = "^3.4.3"
-html2text = "^2020.1.16"
-python-dateutil = "^2.8.2"
-simplejson = "^3.19.1"
-delorean = "^1.0.0"
-requests-oauthlib = "^1.3.1"
 strenum = "^0.4.15"
-poetry-dotenv-plugin = "^0.1.0"
 qdrant-client = "^1.3.1"
 sentence-transformers = "^2.2.2"
+python-multipart = "^0.0.6"
 
 [tool.poetry.scripts]
 start = "server.main:start"
-
-[tool.poetry.group.dev.dependencies]
-httpx = "^0.23.3"
-pytest = "^7.2.1"
-pytest-cov = "^4.0.0"
-pytest-asyncio = "^0.20.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
