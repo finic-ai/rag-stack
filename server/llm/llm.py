@@ -13,7 +13,7 @@ from langchain.docstore.document import Document
 
 embeddings = HuggingFaceEmbeddings(model_name=os.environ.get("embeddings_model") or "all-MiniLM-L6-v2")
 embeddings_dimension = 384
-base_url = os.environ.get("base_url") or "http://localhost"
+base_url = os.environ.get("llm_base_url") or "http://localhost"
 
 class Gpt4AllLLM(LLM):
 
@@ -24,17 +24,11 @@ class Gpt4AllLLM(LLM):
         self.llm = GPT4All(model="llm/local/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', n_batch=8, verbose=False)
 
     async def ask(self, documents: List[PsychicDocument], question: str) -> str:
-
+        # TODO: support streaming https://gist.github.com/jvelezmagic/03ddf4c452d011aae36b2a0f73d72f68
 
         callbacks = [StreamingStdOutCallbackHandler()]
-        print(os.getcwd())
-        # llm = GPT4All(model="llm/local/ggml-gpt4all-j-v1.3-groovy.bin", backend='gptj', n_batch=8, verbose=False)
-
 
         chain = load_qa_chain(self.llm, chain_type="stuff")  
-
-        print('hello')
-        print(documents)
 
         docs = [
             Document(
@@ -43,6 +37,34 @@ class Gpt4AllLLM(LLM):
             ) for doc in documents
         ]
 
-        result = chain.run(input_documents=docs, question=question)  
+        result = chain.run(input_documents=docs, question=question, callbacks=callbacks)
 
         return result
+    
+class Falcon7BLLM(LLM):
+
+    def __init__(self):
+        super().__init__()
+
+    async def ask(self, documents: List[PsychicDocument], question: str) -> str:
+
+        context_str = ""
+
+        for doc in documents:
+            context_str += f"{doc.title}: {doc.content}\n\n"
+
+        prompt = (
+            "Context: \n"
+            "---------------------\n"
+            f"{context_str}"
+            "\n---------------------\n"
+            f"Given the above context and no other information, answer the question: {question}\n"
+        )
+
+        data = {"prompt": prompt}
+
+        res = requests.post(f"{base_url}:8080/v1/models/model:predict", json=data)
+
+        res_json = res.json()
+
+        return res_json['data']['generated_text']
