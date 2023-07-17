@@ -33,4 +33,14 @@ cd ../server
 poetry install
 export LLM_TYPE=gpt4all
 export QDRANT_URL=http://localhost
+# Download the gpt4all model if it doesn't exist
+FILE_PATH="llm/local/ggml-gpt4all-j-v1.3-groovy.bin"
+
+if [ ! -f "$FILE_PATH" ]; then
+    echo "$FILE_PATH does not exist, downloading..."
+    curl -o $FILE_PATH https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin
+else
+    echo "$FILE_PATH already exists, skipping download."
+fi
+
 poetry run start
