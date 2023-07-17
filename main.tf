@@ -32,7 +32,7 @@ variable "region" {
 variable "qdrant_port" {
   description = "The port to expose for qdrant."
   type        = string
-  default     = "6333"
+  default     = "443"
 }
 
 resource "google_cloud_run_service" "qdrant" {
@@ -44,9 +44,8 @@ resource "google_cloud_run_service" "qdrant" {
       containers {
         image = "qdrant/qdrant:v1.3.0"
 
-        env {
-            name  = "QDRANT__SERVICE__HTTP_PORT"
-            value = "8080"
+        ports {
+          container_port = 6333
         }
       }
     }
@@ -67,6 +66,12 @@ resource "google_cloud_run_service" "ragstack-server" {
       containers {
         image = "jfan001/ragstack-server:latest"
 
+        resources {
+          limits = {
+            memory = "2Gi"
+          }
+        }
+
         env {
           name  = "QDRANT_URL"
           value = google_cloud_run_service.qdrant.status[0].url
@@ -84,4 +89,11 @@ resource "google_cloud_run_service" "ragstack-server" {
     percent         = 100
     latest_revision = true
   }
+}
+
+resource "google_cloud_run_service_iam_member" "public" {
+  service  = google_cloud_run_service.qdrant.name
+  location = google_cloud_run_service.qdrant.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
