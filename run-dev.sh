@@ -31,4 +31,6 @@ docker run -d --name qdrant -p 6333:6333 qdrant/qdrant:v1.3.0
 printf '\n🤖 Starting RAG server...\n'
 cd ../server
 poetry install
+export LLM_TYPE=gpt4all
+export QDRANT_URL=http://localhost
 poetry run start

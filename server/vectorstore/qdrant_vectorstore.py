@@ -70,9 +70,7 @@ class QdrantVectorStore(VectorStore):
 
             # TODO: Fix this so that the vector output is of the format PointStruct expects
             vector = embeddings_model.encode([doc.page_content])[0]
-            import pdb
-            pdb.set_trace()
-
+            vector = vector.tolist()
 
             points.append(PointStruct(
                 id=str(chunk_id),
@@ -96,7 +94,10 @@ class QdrantVectorStore(VectorStore):
         return True
     
     async def query(self, query: str) -> List[PsychicDocument]:
-        query_vector = embeddings.embed_query(query)
+        query_vector = embeddings_model.encode([query])[0]
+        query_vector = query_vector.tolist()
+
+        # query_vector = embeddings.embed_query(query)
         results = self.client.search(
             collection_name=self.collection_name,
             query_vector=query_vector,

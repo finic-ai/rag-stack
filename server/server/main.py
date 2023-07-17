@@ -18,7 +18,7 @@ from models.api import (
 import uuid
 from connectors import FileConnector
 from vectorstore import QdrantVectorStore
-from llm import Gpt4AllLLM
+from llm import get_selected_llm
 
 
 app = FastAPI()
@@ -32,7 +32,7 @@ app.add_middleware(
 
 bearer_scheme = HTTPBearer()
 vector_store = QdrantVectorStore()
-llm = Gpt4AllLLM()
+llm = get_selected_llm()
 
 def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     api_key = os.environ.get("API_KEY")

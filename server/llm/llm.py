@@ -13,7 +13,16 @@ from langchain.docstore.document import Document
 
 embeddings = HuggingFaceEmbeddings(model_name=os.environ.get("embeddings_model") or "all-MiniLM-L6-v2")
 embeddings_dimension = 384
-base_url = os.environ.get("llm_base_url") or "http://localhost"
+base_url = os.environ.get("LLM_URL") or "http://localhost"
+
+def get_selected_llm() -> LLM:
+    llm_type = os.environ.get("LLM_TYPE") or "falcon7b"
+    if llm_type == "gpt4all":
+        return Gpt4AllLLM()
+    elif llm_type == "falcon7b":
+        return Falcon7BLLM()
+    else:
+        raise Exception("Unknown LLM type: " + llm_type)
 
 class Gpt4AllLLM(LLM):
 
