@@ -2,3 +2,7 @@
 /debug
 .vscode
 .env
+terraform.tfstate
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
+.terraform
