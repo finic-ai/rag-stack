@@ -95,7 +95,6 @@ class QdrantVectorStore(VectorStore):
     async def query(self, query: str) -> List[PsychicDocument]:
         query_vector = embeddings_model.encode([query])[0]
         query_vector = query_vector.tolist()
-
         # query_vector = embeddings.embed_query(query)
         results = self.client.search(
             collection_name=self.collection_name,

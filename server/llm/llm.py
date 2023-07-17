@@ -34,18 +34,16 @@ class Gpt4AllLLM(LLM):
 
     async def ask(self, documents: List[PsychicDocument], question: str) -> str:
         # TODO: support streaming https://gist.github.com/jvelezmagic/03ddf4c452d011aae36b2a0f73d72f68
-
         callbacks = [StreamingStdOutCallbackHandler()]
 
         chain = load_qa_chain(self.llm, chain_type="stuff")  
 
         docs = [
             Document(
-                page_content=doc.content, 
-                metadata={"title": doc.title, "id": doc.id, "source": doc.uri}
+                page_content=doc.payload.get("content"), 
+                metadata={**doc.payload.get("metadata")}
             ) for doc in documents
         ]
-
         result = chain.run(input_documents=docs, question=question, callbacks=callbacks)
 
         return result
