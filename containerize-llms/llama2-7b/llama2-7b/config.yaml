@@ -1,0 +1,33 @@
+apply_library_patches: true
+bundled_packages_dir: packages
+data_dir: data
+description: null
+environment_variables: {}
+examples_filename: examples.yaml
+external_package_dirs: []
+input_type: Any
+live_reload: false
+model_class_filename: model.py
+model_class_name: Model
+model_framework: custom
+model_metadata: {}
+model_module_dir: model
+model_name: Falcon-7B
+model_type: custom
+python_version: py39
+requirements:
+- torch
+- peft
+- sentencepiece
+- accelerate
+- bitsandbytes
+- einops
+- scipy
+- git+https://github.com/huggingface/transformers.git
+resources:
+  use_gpu: true
+  cpu: "3"
+  memory: 14Gi
+secrets: {}
+spec_version: '2.0'
+system_packages: []
