@@ -7,22 +7,37 @@ terraform {
   }
 }
 
+variable "project_id" {
+  description = "The ID of the project in which resources will be deployed."
+  type        = string
+}
+
+variable "region" {
+  description = "The GCP region to deploy to."
+  type        = string
+}
+
+variable "key_file" {
+  description = "The path to the GCP service account key file."
+  type        = string
+}
+
 provider "google" {
-  credentials = "/Users/ayanbandyopadhyay/Desktop/rag-stack/debug/spearmint-fbf84-87210ebc17af.json"
-  project     = "spearmint-fbf84"
-  region      = "us-central1"
+  credentials = file(var.key_file)
+  project     = var.project_id
+  region      = var.region
 }
 
 resource "google_container_cluster" "gpu_cluster" {
   name               = "gpu-cluster"
-  location           = "us-central1-c"
+  location           = var.region
   initial_node_count = 1
   remove_default_node_pool = true
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "gpu-node-pool"
-  location   = "us-central1-c"
+  location   = var.region
   cluster    = google_container_cluster.gpu_cluster.name
   node_count = 1
 

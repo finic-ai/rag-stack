@@ -11,9 +11,9 @@ terraform {
 }
 
 provider "google" {
-  credentials = file("/Users/ayanbandyopadhyay/Desktop/rag-stack/debug/spearmint-fbf84-87210ebc17af.json")
-  project     = "spearmint-fbf84"
-  region      = "us-central1"
+  credentials = file(var.key_file)
+  project     = var.project_id
+  region      = var.region
 }
 
 
@@ -25,6 +25,7 @@ data "google_client_config" "default" {
 data "google_container_cluster" "default" {
   name       = "gpu-cluster"
   depends_on = [module.gke-cluster]
+  location   = var.region
 }
 
 provider "kubernetes" {
@@ -34,7 +35,6 @@ provider "kubernetes" {
     data.google_container_cluster.default.master_auth[0].cluster_ca_certificate,
   )
 }
-
 
 resource "kubernetes_deployment" "falcon7b" {
   metadata {
@@ -113,21 +113,20 @@ variable "region" {
 variable "qdrant_port" {
   description = "The port to expose for qdrant."
   type        = string
-  default     = "6333"
+  default     = "443"
 }
 
 resource "google_cloud_run_service" "qdrant" {
   name     = "qdrant"
-  location = "us-central1"
+  location = var.region
 
   template {
     spec {
       containers {
         image = "qdrant/qdrant:v1.3.0"
 
-        env {
-            name  = "QDRANT__SERVICE__HTTP_PORT"
-            value = "8080"
+        ports {
+          container_port = 6333
         }
       }
     }
@@ -141,7 +140,7 @@ resource "google_cloud_run_service" "qdrant" {
 
 resource "google_cloud_run_service" "ragstack-server" {
   name     = "ragstack-server"
-  location = "us-central1"
+  location = var.region
 
   template {
     spec {
@@ -161,7 +160,7 @@ resource "google_cloud_run_service" "ragstack-server" {
 
         env {
           name = "LLM_URL"
-          value = kubernetes_service.falcon7b_service.status[0].load_balancer.ingress[0].ip
+          value = kubernetes_service.falcon7b_service.status[0].load_balancer[0].ingress[0].ip
         }
 
         env {
@@ -180,4 +179,15 @@ resource "google_cloud_run_service" "ragstack-server" {
 
 module "gke-cluster" {
   source       = "./gke-cluster"
+
+  project_id = var.project_id
+  region     = var.region
+  key_file   = var.key_file
+}
+
+resource "google_cloud_run_service_iam_member" "public" {
+  service  = google_cloud_run_service.qdrant.name
+  location = google_cloud_run_service.qdrant.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
