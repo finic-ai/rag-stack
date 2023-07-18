@@ -34,6 +34,9 @@ gcloud config set compute/zone YOUR-REGION-HERE
 gcloud container clusters get-credentials gpu-cluster
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded.yaml
 ```
+
+The deployment script was implemented using Terraform.
+
 3. You can run the frontend by creating a `.env` file in `ragstack-ui` and setting `VITE_SERVER_URL` to the url of the `ragstack-server` instance in your Google Cloud run.
 
 ## Roadmap
