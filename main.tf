@@ -160,7 +160,7 @@ resource "google_cloud_run_service" "ragstack-server" {
 
         env {
           name = "LLM_URL"
-          value = kubernetes_service.falcon7b_service.status[0].load_balancer[0].ingress[0].ip
+          value = "http://${kubernetes_service.falcon7b_service.status[0].load_balancer[0].ingress[0].ip}"
         }
 
         env {
