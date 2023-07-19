@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama2-7b
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: llama2-7b-layer
+  template:
+    metadata:
+      labels:
+        component: llama2-7b-layer
+    spec:
+      containers:
+      - name: llama2-7b-container
+        image: psychicapi/llama2-7b:latest
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama2-7b-service
+  namespace: default
+spec:
+  type: LoadBalancer
+  selector:
+    component: llama2-7b-layer
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080

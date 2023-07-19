@@ -2,9 +2,8 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from typing import Dict
 
-MODEL_NAME = "meta-llama/Llama-2-7b"
+MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
 DEFAULT_MAX_LENGTH = 128
-
 
 class Model:
     def __init__(self, data_dir: str, config: Dict, **kwargs) -> None:
@@ -14,9 +13,12 @@ class Model:
         print("THE DEVICE INFERENCE IS RUNNING ON IS: ", self.device)
         self.tokenizer = None
         self.pipeline = None
+        secrets = kwargs.get("secrets")
+        self.huggingface_api_token = secrets.get("huggingface_api_token")
+            
 
     def load(self):
-        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_auth_token=self.huggingface_api_token)
         model_8bit = AutoModelForCausalLM.from_pretrained(
             MODEL_NAME,
             device_map="auto",

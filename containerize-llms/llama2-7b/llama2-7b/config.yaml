@@ -28,6 +28,7 @@ resources:
   use_gpu: true
   cpu: "3"
   memory: 14Gi
-secrets: {}
+secrets: 
+  huggingface_api_token: "API_TOKEN_HERE"
 spec_version: '2.0'
 system_packages: []
