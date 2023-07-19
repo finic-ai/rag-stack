@@ -1,4 +1,4 @@
-# RAGstack
+# 🧺 RAGstack
 Deploy retrieval-augmented generation to chat your data with open-source LLMs like Llama 2, Falcon, and GPT4All.
 
 **Retrieval Augmented Generation (RAG)** is a technique where the capabilities of a large language model (LLM) are augmented by retrieving information from other systems and inserting them into the LLM’s context window via a prompt. This gives LLMs information beyond what was provided in their training data, which is necessary for almost every enterprise use case. Examples include data from current web pages, data from SaaS apps like Confluence or Salesforce, and data from documents like sales contracts and PDFs.
@@ -22,11 +22,17 @@ RAGstack deploys the following resources for retrieval-augmented generation:
 
 Simple server and UI that handles PDF upload, so that you can chat over your PDFs using Qdrant and the open-source LLM of choice.
 
-![](https://github.com/psychic-api/RAGstack/assets/13636019/d4c17b85-be94-4f16-af37-d5702570ad3f)
+<img width="800" alt="CleanShot 2023-07-18 at 20 36 49@2x" src="https://github.com/psychic-api/rag-stack/assets/14931371/2869ff99-c077-400d-9663-08a9468f5139">
 
 ## Run locally
 
 To run locally, run `./run-dev`. This will download [ggml-gpt4all-j-v1.3-groovy.bin](https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin) into `server/llm/local/` and run the server, LLM, and Qdrant vector database locally.
+
+All services will be ready once you see the following message:
+
+```
+INFO:     Application startup complete.
+```
 
 ## Deploy to Google Cloud
 
