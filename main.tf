@@ -121,6 +121,10 @@ resource "kubernetes_deployment" "llama2_7b" {
         container {
           image = "psychicapi/llama2-7b:latest"
           name = "llama2-7b-container"
+          env {
+            name  = "TRUSS_SECRET_huggingface_api_token"
+            value = var.hf_api_token
+          }
           port {
             container_port = 8080
           }
@@ -175,6 +179,11 @@ variable "region" {
   description = "The GCP region to deploy to."
   type        = string
   default     = "us-west1"  
+}
+
+variable "hf_api_token" {
+  description = "Huggingface API token"
+  type        = string     
 }
 
 variable "qdrant_port" {
