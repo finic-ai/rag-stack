@@ -43,4 +43,6 @@ else
     echo "$FILE_PATH already exists, skipping download."
 fi
 
+printf '\n🔮 Ragstack is almost ready.\nAccess the UI at http://localhost:5173 and send queries to http://localhost:8080/ask-question\n\n'
+
 poetry run start

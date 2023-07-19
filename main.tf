@@ -37,6 +37,7 @@ provider "kubernetes" {
 }
 
 resource "kubernetes_deployment" "falcon7b" {
+  count = var.model == "falcon7b" ? 1 : 0
   metadata {
     name = "falcon7b"
     labels = {
@@ -75,6 +76,7 @@ resource "kubernetes_deployment" "falcon7b" {
 }
 
 resource "kubernetes_service" "falcon7b_service" {
+  count = var.model == "falcon7b" ? 1 : 0
   metadata {
     name      = "falcon7b-service"
     namespace = "default"
@@ -94,8 +96,77 @@ resource "kubernetes_service" "falcon7b_service" {
   }
 }
 
+resource "kubernetes_deployment" "llama2_7b" {
+  count = var.model == "llama2-7b" ? 1 : 0
+  metadata {
+    name = "llama2-7b"
+    labels = {
+      app = "llama2-7b"
+    }
+  }
+  spec {
+    replicas = 1
+    selector {
+      match_labels = {
+        component = "llama2-7b-layer"
+      }
+    }
+    template {
+      metadata {
+        labels = {
+          component = "llama2-7b-layer"
+        }
+      }
+      spec {
+        container {
+          image = "psychicapi/llama2-7b:latest"
+          name = "llama2-7b-container"
+          env {
+            name  = "TRUSS_SECRET_huggingface_api_token"
+            value = var.hf_api_token
+          }
+          port {
+            container_port = 8080
+          }
+          resources {
+            limits = {
+              "nvidia.com/gpu" = 1
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "llama2_7b_service" {
+  count = var.model == "llama2-7b" ? 1 : 0
+  metadata {
+    name      = "llama2-7b-service"
+    namespace = "default"
+  }
+
+  spec {
+    selector = {
+      component = "llama2-7b-layer"
+    }
+
+    port {
+      port        = 8080
+      target_port = 8080
+    }
+
+    type = "LoadBalancer"
+  }
+}
+
 variable "project_id" {
   description = "The ID of the project in which the resources will be deployed."
+  type        = string
+}
+
+variable "model" {
+  description = "The model to deploy."
   type        = string
 }
 
@@ -108,6 +179,11 @@ variable "region" {
   description = "The GCP region to deploy to."
   type        = string
   default     = "us-west1"  
+}
+
+variable "hf_api_token" {
+  description = "Huggingface API token"
+  type        = string     
 }
 
 variable "qdrant_port" {
@@ -160,7 +236,8 @@ resource "google_cloud_run_service" "ragstack-server" {
 
         env {
           name = "LLM_URL"
-          value = "http://${kubernetes_service.falcon7b_service.status[0].load_balancer[0].ingress[0].ip}"
+          value = var.model == "falcon7b" ? "http://${kubernetes_service.falcon7b_service[0].status[0].load_balancer[0].ingress[0].ip}" : "http://${kubernetes_service.llama2_7b_service[0].status[0].load_balancer[0].ingress[0].ip}"
+
         }
 
         env {
