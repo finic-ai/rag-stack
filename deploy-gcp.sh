@@ -14,11 +14,13 @@ set -e
 read -p "Enter your GCP project ID: " PROJECT_ID
 read -p "(https://cloud.google.com/iam/docs/keys-create-delete#creating) Enter the path to your GCP service account key file: " KEY_FILE
 read -p "Enter the GCP region (default: us-west1): " REGION
+read -p "Model to deploy (llama2-7b or falcon7b): " MODEL
 
 # Set the Terraform variables
 export TF_VAR_project_id=$PROJECT_ID
 export TF_VAR_key_file=$KEY_FILE
 export TF_VAR_region=$REGION
+export TF_VAR_model=$MODEL
 
 # Initialize Terraform
 terraform init
