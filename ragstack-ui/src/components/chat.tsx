@@ -2,7 +2,7 @@ import React, { ChangeEvent, useState, useRef, useEffect } from 'react'
 import { Button, TextInput, Spinner } from 'flowbite-react'
 import { FaRobot, FaUser, FaPaperclip } from "react-icons/fa";
 
-import { upsertFile } from '../utils';
+import { askQuestion, upsertFile } from '../utils';
 
 const ChatComponent: React.FC = () => {
   const [input, setInput] = useState("");
@@ -31,15 +31,19 @@ const ChatComponent: React.FC = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    // console.log("Message sent:", input);
-    // setInput("");
-    // setMessages((prevMessages) => [
-    //   ...prevMessages,
-    //   { message: { answer: input, sources: [] }, isUser: true },
-    // ]);
-    // setLoading(true);
-    // await getBotResponse(input);
-    // setLoading(false);
+    setInput("");
+    setLoading(true);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { message: { answer: input, sources: [] }, isUser: true },
+    ]);
+
+    const response = await askQuestion(input);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { message: { answer: response.answer, sources: [] }, isUser: false },
+    ]);
+    setLoading(false);
   };
 
   const handleFileUpload = async (files: FileList | null) => {
