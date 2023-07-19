@@ -2,7 +2,6 @@ import os
 from models.models import Document as PsychicDocument, VectorStore
 from typing import List, Any, Optional
 import uuid
-from langchain.vectorstores import Qdrant
 from qdrant_client import QdrantClient
 from langchain.docstore.document import Document
 from sentence_transformers import SentenceTransformer
@@ -95,7 +94,6 @@ class QdrantVectorStore(VectorStore):
     async def query(self, query: str) -> List[PsychicDocument]:
         query_vector = embeddings_model.encode([query])[0]
         query_vector = query_vector.tolist()
-        # query_vector = embeddings.embed_query(query)
         results = self.client.search(
             collection_name=self.collection_name,
             query_vector=query_vector,

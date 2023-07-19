@@ -1,12 +1,18 @@
-# rag-stack
-Deploy retrieval-augmented generation to chat your data with open-source LLMs like XGen, Falcon, and GPT4All
+# RAGstack
+Deploy retrieval-augmented generation to chat your data with open-source LLMs like Llama 2, Falcon, and GPT4All.
 
-Rag-stack deploys the following resources for retrieval-augmented generation:
+**Retrieval Augmented Generation (RAG)** is a technique where the capabilities of a large language model (LLM) are augmented by retrieving information from other systems and inserting them into the LLM’s context window via a prompt. This gives LLMs information beyond what was provided in their training data, which is necessary for almost every enterprise use case. Examples include data from current web pages, data from SaaS apps like Confluence or Salesforce, and data from documents like sales contracts and PDFs.
+
+RAG works better than fine-tuning the model because it’s cheaper, it’s faster, and it’s more reliable since the source of information is provided with each response.
+
+RAGstack deploys the following resources for retrieval-augmented generation:
 
 ### Open-source LLM
-* GPT4All: When you run locally, rag-stack will download and deploy Nomic AI's [gpt4all](https://github.com/nomic-ai/gpt4all) model, which runs on consumer CPUs.
+* GPT4All: When you run locally, RAGstack will download and deploy Nomic AI's [gpt4all](https://github.com/nomic-ai/gpt4all) model, which runs on consumer CPUs.
 
-* Falcon-7b: On the cloud, rag-stack deploys Technology Innovation Institute's [falcon-7b](https://huggingface.co/tiiuae/falcon-7b) model onto a GPU-enabled GKE cluster.
+* Falcon-7b: On the cloud, RAGstack deploys Technology Innovation Institute's [falcon-7b](https://huggingface.co/tiiuae/falcon-7b) model onto a GPU-enabled GKE cluster.
+
+* LLama 2: On the cloud, RAGstack can also deploy the 7B paramter version of Meta's [Llama 2](https://ai.meta.com/llama/) model onto a GPU-enabled GKE cluster.
 
 ### Vector database
 
@@ -16,7 +22,7 @@ Rag-stack deploys the following resources for retrieval-augmented generation:
 
 Simple server and UI that handles PDF upload, so that you can chat over your PDFs using Qdrant and the open-source LLM of choice.
 
-![](https://github.com/psychic-api/rag-stack/assets/13636019/d4c17b85-be94-4f16-af37-d5702570ad3f)
+![](https://github.com/psychic-api/RAGstack/assets/13636019/d4c17b85-be94-4f16-af37-d5702570ad3f)
 
 ## Run locally
 
@@ -44,7 +50,7 @@ The deployment script was implemented using Terraform.
 * ✅ GPT4all support
 * ✅ Falcon-7b support
 * ✅ Deployment on GCP
-* 🚧 Llama-2-7b support 
+* 🚧 Llama-2-40b support 
 * 🚧 Deployment on AWS
 
 
