@@ -12,3 +12,24 @@ export const upsertFile = async (formData: FormData): Promise<string | null> => 
   }
 
 }
+
+export const getBotResponse = async (input: string): Promise<string | null> => {
+  try {
+    console.log(input)
+    const response = await fetch(import.meta.env.VITE_APP_SERVER_URL + '/ask-question', { 
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({'question': input})
+    })
+    const data = await response.json();
+    return data.answer
+  } catch (error: any) {
+    console.error(
+      `Error upserting files: ${error.message}`
+    );
+    return error;
+  }
+
+}

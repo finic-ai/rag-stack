@@ -54,7 +54,8 @@ async def upsert_files(
     # auth_success: bool = Depends(validate_token)
 ):
     try:
-        docs = FileConnector(files).load()
+        print(files)
+        docs = await FileConnector(files).load()
         success = await vector_store.upsert(docs)
         response = UpsertFilesResponse(success=success)
         return response
@@ -74,6 +75,7 @@ async def ask_question(
     try:
         question = request.question
         documents = await vector_store.query(question)
+        print(documents)
         answer = await llm.ask(documents, question)
         return AskQuestionResponse(answer=answer)
     except Exception as e:
