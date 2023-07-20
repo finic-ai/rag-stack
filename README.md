@@ -1,11 +1,11 @@
 # 🧺 RAGstack
-Deploy retrieval-augmented generation to chat your data with open-source LLMs like Llama 2, Falcon, and GPT4All.
+Deploy a private ChatGPT alternative hosted within your VPC. Connect it to your organization's knowledge base and use it as a corporate oracle. Supports open-source LLMs like Llama 2, Falcon, and GPT4All.
 
 <p align="center">
 <a href="https://join.slack.com/t/psychicapi/shared_invite/zt-1yptnhwcz-SiOCnrbqnBDsuzps9sEMSw" target="_blank">
     <img src="https://img.shields.io/badge/slack-join-blue.svg?logo=slack" alt="Slack">
 </a>
-<a href="https://github.com/psychicapi/psychic/issues?q=is%3Aissue+is%3Aclosed" target="_blank">
+<a href="https://github.com/psychicapi/rag-stack/issues?q=is%3Aissue+is%3Aclosed" target="_blank">
     <img src="https://img.shields.io/github/issues-closed/psychicapi/psychic?color=blue" alt="Issues">
 </a>
   <a href="https://twitter.com/psychicapi" target="_blank">
