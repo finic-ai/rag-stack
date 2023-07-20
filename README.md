@@ -1,6 +1,18 @@
 # 🧺 RAGstack
 Deploy retrieval-augmented generation to chat your data with open-source LLMs like Llama 2, Falcon, and GPT4All.
 
+<p align="center">
+<a href="https://join.slack.com/t/psychicapi/shared_invite/zt-1yptnhwcz-SiOCnrbqnBDsuzps9sEMSw" target="_blank">
+    <img src="https://img.shields.io/badge/slack-join-blue.svg?logo=slack" alt="Slack">
+</a>
+<a href="https://github.com/psychicapi/psychic/issues?q=is%3Aissue+is%3Aclosed" target="_blank">
+    <img src="https://img.shields.io/github/issues-closed/psychicapi/psychic?color=blue" alt="Issues">
+</a>
+  <a href="https://twitter.com/psychicapi" target="_blank">
+    <img src="https://img.shields.io/twitter/follow/psychicapi?style=social" alt="Twitter">
+</a>
+</p>
+
 **Retrieval Augmented Generation (RAG)** is a technique where the capabilities of a large language model (LLM) are augmented by retrieving information from other systems and inserting them into the LLM’s context window via a prompt. This gives LLMs information beyond what was provided in their training data, which is necessary for almost every enterprise use case. Examples include data from current web pages, data from SaaS apps like Confluence or Salesforce, and data from documents like sales contracts and PDFs.
 
 RAG works better than fine-tuning the model because it’s cheaper, it’s faster, and it’s more reliable since the source of information is provided with each response.
