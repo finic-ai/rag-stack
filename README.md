@@ -53,8 +53,8 @@ INFO:     Application startup complete.
 
 To deploy the RAG stack using `Falcon-7B` running on GPUs to your own google cloud instance, go through the following steps:
 
-1. Run `./deploy-gcp.sh`. This will prompt you for your GCP project ID, service account key file, and region.
-2. If you get an error on the `Falcon-7B` deployment step, run the following commands and then run `./deploy-gcp.sh` again:
+1. Run `./gcp/deploy-gcp.sh`. This will prompt you for your GCP project ID, service account key file, and region as well as some other parameters (model, HuggingFace token etc).
+2. If you get an error on the `Falcon-7B` deployment step, run the following commands and then run `./gcp/deploy-gcp.sh` again:
 
 ```
 gcloud config set compute/zone YOUR-REGION-HERE
@@ -66,13 +66,23 @@ The deployment script was implemented using Terraform.
 
 3. You can run the frontend by creating a `.env` file in `ragstack-ui` and setting `VITE_SERVER_URL` to the url of the `ragstack-server` instance in your Google Cloud run.
 
+## Deploy to AWS
+
+To deploy the RAG stack using `Falcon-7B` running on GPUs to your own AWS EC2 instances (using ECS), go through the following steps:
+
+1. Run `./aws/deploy-aws.sh`. This will prompt you for your AWS credentials as well as some other parameters (model, HuggingFace token etc).
+
+The deployment script was implemented using Terraform.
+
+3. You can run the frontend by creating a `.env` file in `ragstack-ui` and setting `VITE_SERVER_URL` to the url of the ALB instance.
+
 ## Roadmap
 
 * ✅ GPT4all support
 * ✅ Falcon-7b support
 * ✅ Deployment on GCP
+* ✅ Deployment on AWS
 * 🚧 Llama-2-40b support 
-* 🚧 Deployment on AWS
 
 
 ## Credits
