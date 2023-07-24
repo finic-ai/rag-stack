@@ -41,7 +41,8 @@ Simple server and UI that handles PDF upload, so that you can chat over your PDF
 
 ## Run locally
 
-To run locally, run `./run-dev`. This will download [ggml-gpt4all-j-v1.3-groovy.bin](https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin) into `server/llm/local/` and run the server, LLM, and Qdrant vector database locally.
+1. Copy `ragstack-ui/local.env` into `ragstack-ui/.env`
+2. Run `./run-dev`. This will download [ggml-gpt4all-j-v1.3-groovy.bin](https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin) into `server/llm/local/` and run the server, LLM, and Qdrant vector database locally.
 
 All services will be ready once you see the following message:
 
