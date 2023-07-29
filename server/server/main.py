@@ -36,6 +36,8 @@ app.add_middleware(
 bearer_scheme = HTTPBearer()
 vector_store = QdrantVectorStore()
 llm = get_selected_llm()
+db = Database()
+
 
 def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     use_api_key = os.environ.get("USE_API_KEY") or False
@@ -43,9 +45,9 @@ def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_sc
     if not use_api_key:
         print("not using api key")
         return AppConfig(app_id="test", user_id="test")
-    
+
     try:
-        app_config = Database().get_config(credentials.credentials)
+        app_config = db.get_config(credentials.credentials)
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or missing public key")
     if credentials.scheme != "Bearer" or app_config is None:
@@ -63,6 +65,7 @@ async def upsert_files(
 ):
     try:
         print(files)
+        db.upsert(appConfig=config, files=files)
         docs = await FileConnector(files).load()
         success = await vector_store.upsert(docs)
         response = UpsertFilesResponse(success=success)
