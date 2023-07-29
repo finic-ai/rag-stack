@@ -9,7 +9,7 @@ import json
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains.question_answering import load_qa_chain  
 from langchain.docstore.document import Document
-
+import openai
 
 embeddings = HuggingFaceEmbeddings(model_name=os.environ.get("embeddings_model") or "all-MiniLM-L6-v2")
 embeddings_dimension = 384
@@ -21,6 +21,10 @@ def get_selected_llm() -> LLM:
         return Gpt4AllLLM()
     elif llm_type == "falcon7b":
         return Falcon7BLLM()
+    elif llm_type == "gpt3.5":
+        return GPT("gpt-3.5-turbo")
+    elif llm_type == "gpt4":
+        return GPT("gpt-4")
     else:
         raise Exception("Unknown LLM type: " + llm_type)
 
@@ -75,3 +79,35 @@ class Falcon7BLLM(LLM):
         res_json = res.json()
 
         return res_json['data']['generated_text']
+    
+class GPT(LLM):
+    model_name: str = "gpt-3.5-turbo"
+
+    def __init__(self, model_name="gpt-3.5-turbo"):
+        super().__init__()
+        self.model_name = model_name
+
+    async def ask(self, documents: List[PsychicDocument], question: str) -> str:
+        context_str = ""
+
+        for doc in documents:
+            context_str += f"{doc.title}: {doc.content}\n\n"
+
+        prompt = (
+            "Context: \n"
+            "---------------------\n"
+            f"{context_str}"
+            "\n---------------------\n"
+            f"Given the above context and no other information, answer the question: {question}\n"
+        )
+
+
+        res = openai.ChatCompletion.create(
+            model=self.model_name,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that answers questions about the documents provided. If you get messages that aren't related to the documents, ask about how you can help the user with the documents."},
+                {"role": "user", "content": prompt},
+            ]
+        )
+
+        return res['choices'][0]['message']['content']

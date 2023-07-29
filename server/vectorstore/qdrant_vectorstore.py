@@ -35,7 +35,8 @@ class QdrantVectorStore(VectorStore):
         if not os.getenv("QDRANT_URL"):
             raise Exception("QDRANT_URL must be set as an environment variable.")
         qdrant_port = os.getenv("QDRANT_PORT") or "6333"
-        self.client = QdrantClient(url=os.getenv("QDRANT_URL"), port=qdrant_port)
+        api_key = os.getenv("QDRANT_API_KEY")
+        self.client = QdrantClient(url=os.getenv("QDRANT_URL"), port=qdrant_port, api_key=api_key)
         self.client.recreate_collection(
             collection_name="my_documents",
             vectors_config=VectorParams(size=embeddings_dimension, distance=Distance.COSINE) 

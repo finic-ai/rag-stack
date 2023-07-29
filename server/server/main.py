@@ -15,10 +15,13 @@ from models.api import (
     AskQuestionResponse,
 )
 
+from models.models import AppConfig
+
 import uuid
 from connectors import FileConnector
 from vectorstore import QdrantVectorStore
 from llm import get_selected_llm
+from database import Database
 
 
 app = FastAPI()
@@ -35,14 +38,19 @@ vector_store = QdrantVectorStore()
 llm = get_selected_llm()
 
 def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
-    api_key = os.environ.get("API_KEY")
-
-    if api_key is None:
-        return True
+    use_api_key = os.environ.get("USE_API_KEY") or False
+    print(use_api_key)
+    if not use_api_key:
+        print("not using api key")
+        return AppConfig(app_id="test", user_id="test")
     
-    if credentials.scheme != "Bearer" or credentials.credentials != api_key:
-        raise HTTPException(status_code=401, detail="Invalid or missing api key")
-    return True
+    try:
+        app_config = Database().get_config(credentials.credentials)
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or missing public key")
+    if credentials.scheme != "Bearer" or app_config is None:
+        raise HTTPException(status_code=401, detail="Invalid or missing public key")
+    return app_config
 
 
 @app.post(
@@ -51,7 +59,7 @@ def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_sc
 )
 async def upsert_files(
     files: List[UploadFile] = File(...),
-    # auth_success: bool = Depends(validate_token)
+    config: AppConfig = Depends(validate_token),
 ):
     try:
         print(files)
@@ -70,7 +78,7 @@ async def upsert_files(
 )
 async def ask_question(
     request: AskQuestionRequest = Body(...),
-    # auth_success: bool = Depends(validate_token)
+    config: AppConfig = Depends(validate_token),
 ):
     try:
         question = request.question

@@ -11,6 +11,10 @@ class Document(BaseModel):
     content: str
     uri: Optional[str] = None
 
+class AppConfig(BaseModel):
+    app_id: str
+    user_id: str
+
 
 class VectorStore(BaseModel, ABC):
 

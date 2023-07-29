@@ -18,6 +18,8 @@ sentence-transformers = "^2.2.2"
 python-multipart = "^0.0.6"
 gpt4all = "^1.0.5"
 pymupdf = "^1.22.5"
+openai = "^0.27.8"
+supabase = "^1.0.3"
 
 [tool.poetry.scripts]
 start = "server.main:start"
