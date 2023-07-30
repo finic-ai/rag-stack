@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@subframe/core": "^1.86.0",
     "autoprefixer": "^10.4.14",
+    "classnames": "^2.3.2",
     "flowbite": "^1.7.0",
     "flowbite-react": "^0.4.11",
     "postcss": "^8.4.26",

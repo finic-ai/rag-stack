@@ -100,4 +100,10 @@ class QdrantVectorStore(VectorStore):
             query_vector=query_vector,
             limit=5
         )
+        results = [PsychicDocument(
+            id=doc.payload["metadata"]["doc_id"],
+            title=doc.payload["metadata"]["title"],
+            content=doc.payload["content"],
+            uri=doc.payload["metadata"]["source"]
+        ) for doc in results]
         return results
