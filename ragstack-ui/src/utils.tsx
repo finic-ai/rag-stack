@@ -4,7 +4,6 @@ export const upsertFile = async (formData: FormData): Promise<string | null> => 
     const response = await fetch(import.meta.env.VITE_APP_SERVER_URL + '/upsert-files', { 
       method: 'POST', 
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer test`,
       },
       body: formData 
