@@ -1,0 +1,25 @@
+#!/bin/bash
+echo '    ____              _____ __             __  '
+echo '   / __ \____ _____ _/ ___// /_____ ______/ /__'
+echo '  / /_/ / __ `/ __ `/\__ \/ __/ __ `/ ___/ //_/'
+echo ' / _, _/ /_/ / /_/ /___/ / /_/ /_/ / /__/ ,<   '
+echo '/_/ |_|\__,_/\__, //____/\__/\__,_/\___/_/|_|  '
+echo '            /____/   '
+echo '_______________________________________________'
+echo
+
+set -e
+
+read -p "Enter your Access Key: " ACCESS_KEY
+read -p "Enter your Secret Key: " SECRET_KEY 
+read -p "Enter your Huggingface API Token: " HF_API_TOKEN
+read -p "Model to deploy (llama2-7b or falcon7b): " MODEL
+
+export TF_VAR_aws_access_key=$ACCESS_KEY
+export TF_VAR_aws_secret_key=$SECRET_KEY
+export TF_VAR_model=$MODEL
+export TF_VAR_hf_api_token=$HF_API_TOKEN
+
+terraform init
+terraform validate
+terraform apply
