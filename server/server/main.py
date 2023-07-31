@@ -37,7 +37,9 @@ llm = get_selected_llm()
 db = Database()
 
 
-def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
+async def validate_token(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+):
     use_api_key = os.environ.get("USE_API_KEY") or False
     print(use_api_key)
     if not use_api_key:
@@ -45,7 +47,7 @@ def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_sc
         return AppConfig(app_id="test", user_id="test")
 
     try:
-        app_config = db.get_config(credentials.credentials)
+        app_config = await db.get_config(credentials.credentials)
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or missing public key")
     if credentials.scheme != "Bearer" or app_config is None:

@@ -10,26 +10,25 @@ import { Navbar } from "../components/subframe";
 import { NewComponent } from "../components/subframe";
 import { TextInput } from "../components/subframe";
 
-import React, { ChangeEvent, useState, useRef, useEffect } from 'react'
+import React, { ChangeEvent, useState, useRef, useEffect } from "react";
 import { FaRobot, FaUser, FaPaperclip } from "react-icons/fa";
-import WebViewer from '@pdftron/webviewer';
-import { upsertFile, getBotResponse } from '../utils';
+import WebViewer from "@pdftron/webviewer";
+import { upsertFile, getBotResponse, getFilePreviews } from "../utils";
 import supabase from "../lib/supabaseClient";
 import { useUserStateContext } from "../context/UserStateContext";
 
-
 const ChatComponent: React.FC = () => {
-
   const viewer = useRef<any>(null);
 
-  const {bearer} = useUserStateContext();
-
+  const { bearer } = useUserStateContext();
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [fileLoading, setFileLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [filePreviews, setFilePreviews] = useState<Array<any>>([]);
+  const [fileToShow, setFileToShow] = useState("");
   const [messages, setMessages] = useState<Array<any>>([
     {
       message: {
@@ -40,11 +39,9 @@ const ChatComponent: React.FC = () => {
     },
   ]);
 
-  
-
   const handleChange = (e: any) => {
     setInput(e.target.value);
-  };    
+  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -68,7 +65,7 @@ const ChatComponent: React.FC = () => {
     if (files) {
       const formData = new FormData();
       for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
+        formData.append("files", files[i]);
       }
 
       // Now you can use `formData` to upload the files to a server.
@@ -80,7 +77,6 @@ const ChatComponent: React.FC = () => {
       console.log("No files selected");
       setFileLoading(false);
     }
-
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -89,96 +85,135 @@ const ChatComponent: React.FC = () => {
     handleFileUpload(files);
   };
 
+  const handleFilePreviewClick = (name: string) => {
+    setFileToShow(name);
+    console.log("File preview clicked: ", name);
+  };
 
   useEffect(() => {
+    // get file previews
+    const fetchPreviews = async () => {
+      const previews = await getFilePreviews(bearer);
+      console.log(previews);
+      if (previews !== undefined) {
+        setFilePreviews(previews);
+      }
+    };
+    if (bearer) {
+      fetchPreviews();
+    }
+
     WebViewer(
       {
-        path: '/public',
+        path: "/public",
         licenseKey: import.meta.env.VITE_APRYSE_API_KEY,
-        initialDoc: 'https://pdftron.s3.amazonaws.com/downloads/pl/demo-annotated.pdf',
+        initialDoc:
+          "https://pdftron.s3.amazonaws.com/downloads/pl/demo-annotated.pdf",
       },
-      viewer.current,
+      viewer.current
     ).then((instance) => {
-        const { documentViewer } = instance.Core;
-        // you can now call WebViewer APIs here...
-      });
-  }, []);
-
-
+      const { documentViewer } = instance.Core;
+      // you can now call WebViewer APIs here...
+    });
+  }, [bearer]);
 
   return (
-  //   <div className="flex flex-col gap-2 items-start w-full h-screen group/cb0e46cf">
-  //   <Navbar>
-  //     <Navbar.Item>Log out</Navbar.Item>
-  //   </Navbar>
-  //   <div className="flex flex-col gap-2 items-start grow shrink-0 basis-0 h-full w-full">
-  //     <div className="flex bg-default-background grow shrink-0 basis-0 h-full w-full items-start">
-  //       <div className="flex border-r border-solid border-neutral-border pt-6 pr-6 pb-6 pl-6 h-full flex-col gap-4 items-start">
-  //         <Button className="flex-none h-10 w-full" icon="FeatherFile">
-  //           Upload PDF
-  //         </Button>
-  //         <div className="flex bg-neutral-300 flex-none h-px w-full flex-col gap-2 items-center" />
-  //         <div className="flex flex-col gap-6 items-start">
-  //           <FileItem />
-  //           <FileItem selected={true} name="claim_2\n.pdf" />
-  //           <FileItem selected={false} name="claim_3.pdf" />
-  //           <FileItem selected={false} name="claim_4.pdf" />
-  //           <FileItem />
-  //         </div>
-  //       </div>
-  //       <div className="flex bg-neutral-50 pt-12 gap-4 items-start justify-center grow shrink-0 basis-0 w-full h-full">
-  //         <div className="flex pt-4 pr-4 pb-4 pl-4 flex-col gap-2 items-start">
-  //           <div className="flex bg-brand-50 border border-solid border-brand-300 rounded pt-1 pr-4 pb-1 pl-4 gap-2 items-center w-full">
-  //             <span className="grow shrink-0 basis-0 w-full text-body font-body text-default-font">
-  //               Are you an insurance agent?
-  //             </span>
-  //             <Button
-  //               variant="Neutral Tertiary"
-  //               size="Small"
-  //               rightIcon="FeatherChevronRight"
-  //             >
-  //               Learn more
-  //             </Button>
-  //           </div>
-  //           <img
-  //             className="flex-none h-192"
-  //             src="https://res.cloudinary.com/demo/image/upload/v1690587883/Screenshot_2023-07-28_at_4.44.27_PM_c4dmit.png"
-  //           />
-  //         </div>
-  //       </div>
-  //       <div className="flex border-l border-solid border-neutral-border pt-4 pr-4 pb-4 pl-4 flex-col gap-4 items-start h-full">
-  //         <NewComponent messages={messages} />
-  //         <div className="flex gap-2 items-center w-full">
-  //           <TextInput
-  //             className="grow shrink-0 basis-0 w-full h-auto"
-  //             label=""
-  //           />
-  //           <Button size="Small" rightIcon="FeatherSend">
-  //             Send
-  //           </Button>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // </div>
+    //   <div className="flex flex-col gap-2 items-start w-full h-screen group/cb0e46cf">
+    //   <Navbar>
+    //     <Navbar.Item>Log out</Navbar.Item>
+    //   </Navbar>
+    //   <div className="flex flex-col gap-2 items-start grow shrink-0 basis-0 h-full w-full">
+    //     <div className="flex bg-default-background grow shrink-0 basis-0 h-full w-full items-start">
+    //       <div className="flex border-r border-solid border-neutral-border pt-6 pr-6 pb-6 pl-6 h-full flex-col gap-4 items-start">
+    //         <Button className="flex-none h-10 w-full" icon="FeatherFile">
+    //           Upload PDF
+    //         </Button>
+    //         <div className="flex bg-neutral-300 flex-none h-px w-full flex-col gap-2 items-center" />
+    //         <div className="flex flex-col gap-6 items-start">
+    //           <FileItem />
+    //           <FileItem selected={true} name="claim_2\n.pdf" />
+    //           <FileItem selected={false} name="claim_3.pdf" />
+    //           <FileItem selected={false} name="claim_4.pdf" />
+    //           <FileItem />
+    //         </div>
+    //       </div>
+    //       <div className="flex bg-neutral-50 pt-12 gap-4 items-start justify-center grow shrink-0 basis-0 w-full h-full">
+    //         <div className="flex pt-4 pr-4 pb-4 pl-4 flex-col gap-2 items-start">
+    //           <div className="flex bg-brand-50 border border-solid border-brand-300 rounded pt-1 pr-4 pb-1 pl-4 gap-2 items-center w-full">
+    //             <span className="grow shrink-0 basis-0 w-full text-body font-body text-default-font">
+    //               Are you an insurance agent?
+    //             </span>
+    //             <Button
+    //               variant="Neutral Tertiary"
+    //               size="Small"
+    //               rightIcon="FeatherChevronRight"
+    //             >
+    //               Learn more
+    //             </Button>
+    //           </div>
+    //           <img
+    //             className="flex-none h-192"
+    //             src="https://res.cloudinary.com/demo/image/upload/v1690587883/Screenshot_2023-07-28_at_4.44.27_PM_c4dmit.png"
+    //           />
+    //         </div>
+    //       </div>
+    //       <div className="flex border-l border-solid border-neutral-border pt-4 pr-4 pb-4 pl-4 flex-col gap-4 items-start h-full">
+    //         <NewComponent messages={messages} />
+    //         <div className="flex gap-2 items-center w-full">
+    //           <TextInput
+    //             className="grow shrink-0 basis-0 w-full h-auto"
+    //             label=""
+    //           />
+    //           <Button size="Small" rightIcon="FeatherSend">
+    //             Send
+    //           </Button>
+    //         </div>
+    //       </div>
+    //     </div>
+    //   </div>
+    // </div>
 
     <div className="flex flex-col  items-start w-full h-screen group/cb0e46cf">
-    <Navbar>
-      <Navbar.Item onClick={() => supabase.auth.signOut()}>Log out</Navbar.Item>
-     </Navbar>
-      <div className="flex bg-default-background grow shrink-0 basis-0 h-full w-full items-start">
+      <Navbar className="shrink-0">
+        <Navbar.Item onClick={() => supabase.auth.signOut()}>
+          Log out
+        </Navbar.Item>
+      </Navbar>
+      <div className="min-h-0 flex bg-default-background grow shrink basis-0 w-full items-start">
         <div className="flex border-r border-solid border-neutral-border pt-6 pr-6 pb-6 pl-6 h-full flex-col gap-4 items-start">
-          <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleFileChange}></input>
-          <Button loading={fileLoading} className="flex-none h-10 w-full" icon="FeatherFile" onClick={() => fileInputRef.current?.click()}>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            multiple
+            onChange={handleFileChange}
+          ></input>
+          <Button
+            loading={fileLoading}
+            className="flex-none h-10 w-full"
+            icon="FeatherFile"
+            onClick={() => fileInputRef.current?.click()}
+          >
             Upload PDF
           </Button>
           <div className="flex bg-neutral-300 flex-none h-px w-full flex-col gap-2 items-center" />
           <div className="flex flex-col gap-6 items-start overflow-y-auto">
-            <FileItem />
+            {filePreviews.map((filePreview) => {
+              console.log(filePreview);
+              return (
+                <FileItem
+                  key={filePreview.name}
+                  selected={filePreview.name == fileToShow}
+                  name={filePreview.name}
+                  onClick={() => handleFilePreviewClick(filePreview.name)}
+                />
+              );
+            })}
+            {/* <FileItem />
             <FileItem selected={true} name="claim_2\n.pdf" />
             <FileItem selected={false} name="claim_3.pdf" />
             <FileItem selected={false} name="claim_4.pdf" />
-            <FileItem />
+            <FileItem /> */}
           </div>
         </div>
         <div className="flex flex-col bg-neutral-50 pt-4 gap-4 items-start justify-center grow shrink-0 basis-0 w-full h-full overflow-y-auto">
@@ -195,7 +230,7 @@ const ChatComponent: React.FC = () => {
                 Learn more
               </Button>
             </div>
-            <div className="w-full flex-grow" ref = {viewer}></div>
+            <div className="w-full flex-grow" ref={viewer}></div>
           </div>
         </div>
 
@@ -203,24 +238,32 @@ const ChatComponent: React.FC = () => {
           <div className="overflow-y-auto flex-grow">
             <NewComponent messages={messages} />
           </div>
-          <form onSubmit={handleSubmit} className="flex gap-2 items-center w-full mb-4">
+          <form
+            onSubmit={handleSubmit}
+            className="flex gap-2 items-center w-full mb-4"
+          >
             <div className="flex-grow">
-            <TextInput
-              className="grow shrink-0 basis-0 w-full h-auto"
-              label=""
+              <TextInput
+                className="grow shrink-0 basis-0 w-full h-auto"
+                label=""
               >
-              <TextInput.Input 
-                value={input}
-                onChange={handleChange}
-                disabled={loading}
-                className="w-full"
-                placeholder="Type your message"
-              />
-            </TextInput>
+                <TextInput.Input
+                  value={input}
+                  onChange={handleChange}
+                  disabled={loading}
+                  className="w-full"
+                  placeholder="Type your message"
+                />
+              </TextInput>
             </div>
-              
-            
-            <Button size="Small" rightIcon="FeatherSend" type="submit" disabled={loading} loading={loading}>
+
+            <Button
+              size="Small"
+              rightIcon="FeatherSend"
+              type="submit"
+              disabled={loading}
+              loading={loading}
+            >
               Send
             </Button>
           </form>
@@ -228,6 +271,6 @@ const ChatComponent: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
-export default ChatComponent
+export default ChatComponent;

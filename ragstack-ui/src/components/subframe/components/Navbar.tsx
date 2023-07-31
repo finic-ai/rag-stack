@@ -60,9 +60,9 @@ const NavbarRoot = React.forwardRef<HTMLElement, NavbarRootProps>(
         ref={ref as any}
         {...otherProps}
       >
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center w-full">
           <img className="flex-none h-7" src={logo} />
-          <div className="flex grow shrink-0 basis-0 w-full h-full gap-1 items-start">
+          <div className="flex grow shrink-0 basis-0 w-full h-full gap-1 items-start justify-end">
             {children !== undefined ? (
               children
             ) : (
