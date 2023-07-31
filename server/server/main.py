@@ -1,23 +1,21 @@
 import os
 import uvicorn
-import uuid
-import pdb
 from fastapi import FastAPI, File, HTTPException, Depends, Body, UploadFile
-from typing import List, Optional, Dict, TypeVar, Union
+from typing import List
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from urllib.parse import urlparse
+import fitz
 
 from models.api import (
+    GetPreviewsResponse,
     UpsertFilesResponse,
     AskQuestionRequest,
     AskQuestionResponse,
 )
 
-from models.models import AppConfig
-
-import uuid
+from models.models import AppConfig, FilePreview
+import base64
 from connectors import FileConnector
 from vectorstore import QdrantVectorStore
 from llm import get_selected_llm
@@ -64,12 +62,39 @@ async def upsert_files(
     config: AppConfig = Depends(validate_token),
 ):
     try:
-        print(files)
         db.upsert(appConfig=config, files=files)
         docs = await FileConnector(files).load()
         success = await vector_store.upsert(docs)
         response = UpsertFilesResponse(success=success)
         return response
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get(
+    "/get-previews",
+    response_model=GetPreviewsResponse,
+)
+async def get_previews(
+    config: AppConfig = Depends(validate_token),
+):
+    try:
+        upload_files = await db.get_all_files_for_tenant(app_config=config)
+
+        previews: List[FilePreview] = []
+        for upload_file in upload_files:
+            pdf_document = fitz.open(upload_file)
+            page = pdf_document.load_page(0)
+            image = page.get_pixmap()
+            image_bytes = image.tobytes()
+            image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+            previews.append(
+                FilePreview(
+                    file_name=upload_file.filename, file_preview_img=image_base64
+                )
+            )
+        return GetPreviewsResponse(previews=previews)
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
