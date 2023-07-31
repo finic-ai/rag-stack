@@ -171,7 +171,7 @@ resource "kubernetes_service" "qdrant_service" {
     }
 
     port {
-      port        = 6333
+      port        = var.qdrant_port
       target_port = 6333
     }
 
