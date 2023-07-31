@@ -104,7 +104,7 @@ resource "kubernetes_service" "falcon7b_service" {
   count = var.model == "falcon7b" ? 1 : 0
   depends_on = [module.aks-cluster]
   metadata {
-    name      = "falcon7b-service"
+    name      = "falcon7b"
     namespace = kubernetes_namespace.rag_stack.metadata[0].name
   }
 
@@ -180,10 +180,7 @@ resource "kubernetes_service" "qdrant_service" {
 }
 
 resource "kubernetes_deployment" "rag_server" {
-  depends_on = [
-    module.aks-cluster,
-    kubernetes_service.qdrant_service
-  ]
+  depends_on = [kubernetes_service.qdrant_service]
   metadata {
     name = "rag-server"
     namespace = kubernetes_namespace.rag_stack.metadata[0].name
@@ -240,12 +237,9 @@ resource "kubernetes_deployment" "rag_server" {
 }
 
 resource "kubernetes_service" "rag_server_service" {
-  depends_on = [
-    module.aks-cluster,
-    kubernetes_service.qdrant_service
-  ]
+  depends_on = [kubernetes_service.qdrant_service]
   metadata {
-    name      = "rag-server-service"
+    name      = "rag-server"
     namespace = kubernetes_namespace.rag_stack.metadata[0].name
   }
 
