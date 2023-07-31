@@ -5,6 +5,8 @@ import classNames from "classnames";
 import * as SubframeCore from "@subframe/core";
 import { Button } from "../components/subframe";
 import { FileItem } from "../components/subframe";
+import { Navbar } from "../components/subframe";
+
 import { NewComponent } from "../components/subframe";
 import { TextInput } from "../components/subframe";
 
@@ -12,10 +14,15 @@ import React, { ChangeEvent, useState, useRef, useEffect } from 'react'
 import { FaRobot, FaUser, FaPaperclip } from "react-icons/fa";
 import WebViewer from '@pdftron/webviewer';
 import { upsertFile, getBotResponse } from '../utils';
+import supabase from "../lib/supabaseClient";
+import { useUserStateContext } from "../context/UserStateContext";
+
 
 const ChatComponent: React.FC = () => {
 
   const viewer = useRef<any>(null);
+
+  const {bearer} = useUserStateContext();
 
 
   const [input, setInput] = useState("");
@@ -48,7 +55,7 @@ const ChatComponent: React.FC = () => {
       { message: { answer: input, sources: [] }, isUser: true },
     ]);
     setLoading(true);
-    const answer = await getBotResponse(input);
+    const answer = await getBotResponse(input, bearer);
     setMessages((prevMessages) => [
       ...prevMessages,
       { message: { answer: answer, sources: [] }, isUser: false },
@@ -67,7 +74,7 @@ const ChatComponent: React.FC = () => {
       // Now you can use `formData` to upload the files to a server.
       // For example, using the fetch API:
       console.log("Files ready to be uploaded: ", selectedFiles);
-      await upsertFile(formData);
+      await upsertFile(formData, bearer);
       setFileLoading(false);
     } else {
       console.log("No files selected");
@@ -100,7 +107,65 @@ const ChatComponent: React.FC = () => {
 
 
   return (
-    <div className="flex flex-col gap-2 items-start w-full h-screen group/cb0e46cf">
+  //   <div className="flex flex-col gap-2 items-start w-full h-screen group/cb0e46cf">
+  //   <Navbar>
+  //     <Navbar.Item>Log out</Navbar.Item>
+  //   </Navbar>
+  //   <div className="flex flex-col gap-2 items-start grow shrink-0 basis-0 h-full w-full">
+  //     <div className="flex bg-default-background grow shrink-0 basis-0 h-full w-full items-start">
+  //       <div className="flex border-r border-solid border-neutral-border pt-6 pr-6 pb-6 pl-6 h-full flex-col gap-4 items-start">
+  //         <Button className="flex-none h-10 w-full" icon="FeatherFile">
+  //           Upload PDF
+  //         </Button>
+  //         <div className="flex bg-neutral-300 flex-none h-px w-full flex-col gap-2 items-center" />
+  //         <div className="flex flex-col gap-6 items-start">
+  //           <FileItem />
+  //           <FileItem selected={true} name="claim_2\n.pdf" />
+  //           <FileItem selected={false} name="claim_3.pdf" />
+  //           <FileItem selected={false} name="claim_4.pdf" />
+  //           <FileItem />
+  //         </div>
+  //       </div>
+  //       <div className="flex bg-neutral-50 pt-12 gap-4 items-start justify-center grow shrink-0 basis-0 w-full h-full">
+  //         <div className="flex pt-4 pr-4 pb-4 pl-4 flex-col gap-2 items-start">
+  //           <div className="flex bg-brand-50 border border-solid border-brand-300 rounded pt-1 pr-4 pb-1 pl-4 gap-2 items-center w-full">
+  //             <span className="grow shrink-0 basis-0 w-full text-body font-body text-default-font">
+  //               Are you an insurance agent?
+  //             </span>
+  //             <Button
+  //               variant="Neutral Tertiary"
+  //               size="Small"
+  //               rightIcon="FeatherChevronRight"
+  //             >
+  //               Learn more
+  //             </Button>
+  //           </div>
+  //           <img
+  //             className="flex-none h-192"
+  //             src="https://res.cloudinary.com/demo/image/upload/v1690587883/Screenshot_2023-07-28_at_4.44.27_PM_c4dmit.png"
+  //           />
+  //         </div>
+  //       </div>
+  //       <div className="flex border-l border-solid border-neutral-border pt-4 pr-4 pb-4 pl-4 flex-col gap-4 items-start h-full">
+  //         <NewComponent messages={messages} />
+  //         <div className="flex gap-2 items-center w-full">
+  //           <TextInput
+  //             className="grow shrink-0 basis-0 w-full h-auto"
+  //             label=""
+  //           />
+  //           <Button size="Small" rightIcon="FeatherSend">
+  //             Send
+  //           </Button>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </div>
+  // </div>
+
+    <div className="flex flex-col  items-start w-full h-screen group/cb0e46cf">
+    <Navbar>
+      <Navbar.Item onClick={() => supabase.auth.signOut()}>Log out</Navbar.Item>
+     </Navbar>
       <div className="flex bg-default-background grow shrink-0 basis-0 h-full w-full items-start">
         <div className="flex border-r border-solid border-neutral-border pt-6 pr-6 pb-6 pl-6 h-full flex-col gap-4 items-start">
           <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleFileChange}></input>

@@ -1,4 +1,5 @@
 "use client";
+// @subframe/sync-disable
 /* Release: ee65b719 (Latest – unreleased) */
 
 import classNames from "classnames";

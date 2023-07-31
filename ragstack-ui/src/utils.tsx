@@ -1,10 +1,10 @@
-export const upsertFile = async (formData: FormData): Promise<string | null> => {
+export const upsertFile = async (formData: FormData, apiKey: string): Promise<string | null> => {
   try {
     console.log(formData)
     const response = await fetch(import.meta.env.VITE_APP_SERVER_URL + '/upsert-files', { 
       method: 'POST', 
       headers: {
-        'Authorization': `Bearer test`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: formData 
     })
@@ -19,14 +19,14 @@ export const upsertFile = async (formData: FormData): Promise<string | null> => 
 
 }
 
-export const getBotResponse = async (input: string): Promise<string | null> => {
+export const getBotResponse = async (input: string, apiKey: string): Promise<string | null> => {
   try {
     console.log(input)
     const response = await fetch(import.meta.env.VITE_APP_SERVER_URL + '/ask-question', { 
       method: 'POST', 
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer test`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({'question': input})
     })

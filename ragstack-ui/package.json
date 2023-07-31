@@ -12,19 +12,24 @@
   "dependencies": {
     "@pdftron/webviewer": "^10.2.3",
     "@subframe/core": "^1.86.0",
+    "@supabase/auth-ui-react": "^0.4.2",
+    "@supabase/supabase-js": "^2.31.0",
     "autoprefixer": "^10.4.14",
     "classnames": "^2.3.2",
     "flowbite": "^1.7.0",
     "flowbite-react": "^0.4.11",
     "postcss": "^8.4.26",
+    "posthog-js": "^1.75.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
-    "tailwindcss": "^3.3.3"
+    "tailwindcss": "^3.3.3",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
     "@vitejs/plugin-react": "^4.0.1",
