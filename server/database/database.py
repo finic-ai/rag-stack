@@ -13,7 +13,7 @@ class Database:
 
     async def get_config(self, bearer_token: str) -> Optional[AppConfig]:
         response = (
-            self.supabase.table("users")
+            self.supabase.table("ragstack_users")
             .select("*")
             .filter("secret_key", "eq", bearer_token)
             .execute()
