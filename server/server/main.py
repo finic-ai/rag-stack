@@ -64,7 +64,7 @@ async def upsert_files(
     config: AppConfig = Depends(validate_token),
 ):
     try:
-        db.upsert(appConfig=config, files=files)
+        db.upsert(config, files)
         docs = await FileConnector(files).load()
         success = await vector_store.upsert(docs)
         response = UpsertFilesResponse(success=success)
