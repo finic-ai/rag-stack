@@ -40,6 +40,28 @@ variable "qdrant_port" {
   default     = "443"
 }
 
+variable "rag_server_image_name" {
+  description = "The Docker image name for the RAG server."
+  type        = string
+  default = "jfan001/ragstack-server:latest"
+}
+
+variable "rag_server_image_login_server" {
+  description = "The Docker registry URL for the RAG server image."
+  type        = string
+}
+
+variable "rag_server_image_username" {
+  description = "The Docker registry username for the RAG server image."
+  type        = string
+}
+
+variable "rag_server_image_password" {
+  description = "The Docker registry password for the RAG server image."
+  type        = string
+  sensitive   = true
+}
+
 module "aks-cluster" {
   source       = "./aks-cluster"
 
@@ -179,6 +201,26 @@ resource "kubernetes_service" "qdrant_service" {
   }
 }
 
+resource "kubernetes_secret" "docker_registry_secret" {
+  metadata {
+    name = "docker-registry-secret"
+    namespace = kubernetes_namespace.rag_stack.metadata[0].name
+  }
+
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      "auths" = {
+        "${var.rag_server_image_login_server}" = {
+          "username" = "${var.rag_server_image_username}"
+          "password" = "${var.rag_server_image_password}"
+        }
+      }
+    })
+  }
+
+  type = "kubernetes.io/dockerconfigjson"
+}
+
 resource "kubernetes_deployment" "rag_server" {
   depends_on = [kubernetes_service.qdrant_service]
   metadata {
@@ -202,8 +244,12 @@ resource "kubernetes_deployment" "rag_server" {
         }
       }
       spec {
+        image_pull_secrets {
+          name = kubernetes_secret.docker_registry_secret.metadata[0].name
+        }
+
         container {
-          image = "jfan001/ragstack-server:latest"
+          image = var.rag_server_image_name
           name = "rag-server-container"
           port {
             container_port = 8080
