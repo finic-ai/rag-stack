@@ -86,7 +86,7 @@ async def get_previews(
 
         previews: List[FilePreview] = []
         for upload_file in upload_files:
-            pdf_document = fitz.open(upload_file)
+            pdf_document = fitz.open(upload_file.filename, upload_file.file)
             page = pdf_document.load_page(0)
             image = page.get_pixmap()
             image_bytes = image.tobytes()

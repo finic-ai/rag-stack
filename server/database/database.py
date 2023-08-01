@@ -32,19 +32,19 @@ class Database:
             try:
                 contents = await file.read()
                 res = self.supabase.storage.from_(app_config.app_id).upload(
-                    path="{}/uploads/{}".format(app_config.app_id, file.filename),
+                    path="/uploads/{}".format(file.filename),
                     file=contents,
                 )
+                # Reset file cursor for any other file readers
+                await file.seek(0)
                 if res.status_code != 200:
                     print("Upload failed")
             except Exception as e:
                 print(e)
                 continue
 
-    async def get_all_files_for_tenant(self, app_config: AppConfig) -> List[io.BytesIO]:
-        files = self.supabase.storage.from_(app_config.app_id).list(
-            path="{}/uploads/".format(app_config.app_id)
-        )
+    async def get_all_files_for_tenant(self, app_config: AppConfig) -> List[UploadFile]:
+        files = self.supabase.storage.from_(app_config.app_id).list(path="uploads/")
 
         upload_files = []
         for file in files:
@@ -53,9 +53,9 @@ class Database:
 
                 with open(file_name, "wb+") as f:
                     res = self.supabase.storage.from_(app_config.app_id).download(
-                        path="{}/uploads/{}".format(app_config.app_id, file_name)
+                        path="uploads/{}".format(file_name)
                     )
-                    file = io.BytesIO(res)
+                    file = UploadFile(file=io.BytesIO(res), filename=file_name)
 
                     upload_files.append(file)
             except Exception as e:
