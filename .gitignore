@@ -1,7 +1,7 @@
 .vercel
 /debug
 .vscode
-.env
+*.env
 *.tfstate
 .terraform.lock.hcl
 .terraform.tfstate.lock.info

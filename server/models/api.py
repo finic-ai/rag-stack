@@ -3,16 +3,24 @@ from models.models import FilePreview
 from pydantic import BaseModel
 
 
-class UpsertFilesResponse(BaseModel):
-    success: bool
-
-
 class AskQuestionRequest(BaseModel):
     question: str
 
 
+class GetFileRequest(BaseModel):
+    file_name: str
+
+
+class UpsertFilesResponse(BaseModel):
+    success: bool
+
+
 class AskQuestionResponse(BaseModel):
     answer: str
+
+
+class GetFileResponse(BaseModel):
+    signed_url: str
 
 
 class GetPreviewsResponse(BaseModel):

@@ -8,6 +8,8 @@ from urllib.parse import urlparse
 import fitz
 
 from models.api import (
+    GetFileRequest,
+    GetFileResponse,
     GetPreviewsResponse,
     UpsertFilesResponse,
     AskQuestionRequest,
@@ -97,6 +99,23 @@ async def get_previews(
                 )
             )
         return GetPreviewsResponse(previews=previews)
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post(
+    "/get-file",
+    response_model=GetFileResponse,
+)
+async def get_file(
+    request: GetFileRequest = Body(...), config: AppConfig = Depends(validate_token)
+):
+    try:
+        signed_url = await db.get_file_signed_url(
+            app_config=config, file_name=request.file_name
+        )
+        return GetFileResponse(signed_url=signed_url)
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))

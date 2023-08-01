@@ -26,7 +26,7 @@ class Database:
         return None
 
     async def upsert(self, app_config: AppConfig, files: List[UploadFile]) -> bool:
-        await self.create_bucket_if_not_exists(app_config=app_config)
+        self.create_bucket_if_not_exists(app_config=app_config)
 
         for file in files:
             try:
@@ -63,6 +63,12 @@ class Database:
                 continue
 
         return upload_files
+
+    async def get_file_signed_url(self, app_config: AppConfig, file_name: str) -> str:
+        res = self.supabase.storage.from_(app_config.app_id).create_signed_url(
+            path="{}/uploads/{}".format(app_config.app_id, file_name), expires_in=3600
+        )
+        return res["signedURL"]
 
     async def getFileNames(self, app_config: AppConfig) -> List[str]:
         pass
