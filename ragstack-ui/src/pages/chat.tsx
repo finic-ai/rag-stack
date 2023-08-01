@@ -46,11 +46,10 @@ const ChatComponent: React.FC = () => {
 
   const fetchPreviews = async () => {
     const previews = await getFilePreviews(bearer);
-    console.log(previews);
     if (previews !== undefined) {
       setFilePreviews(previews);
       if (previews.length > 0) {
-        setFileToShow(previews[0].name);
+        setFileToShow(previews[0].file_name);
       }
     }
   };
