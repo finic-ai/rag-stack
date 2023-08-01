@@ -13,7 +13,7 @@ import { TextInput } from "../components/subframe";
 import React, { ChangeEvent, useState, useRef, useEffect } from "react";
 import { FaRobot, FaUser, FaPaperclip } from "react-icons/fa";
 import WebViewer from "@pdftron/webviewer";
-import { upsertFile, getBotResponse, getFilePreviews } from "../utils";
+import { upsertFile, getBotResponse, getFilePreviews, getFile } from "../utils";
 import supabase from "../lib/supabaseClient";
 import { useUserStateContext } from "../context/UserStateContext";
 
@@ -29,6 +29,7 @@ const ChatComponent: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [filePreviews, setFilePreviews] = useState<Array<any>>([]);
   const [fileToShow, setFileToShow] = useState("");
+  const [docViewer, setDocViewer] = useState<any>(null);
   const [messages, setMessages] = useState<Array<any>>([
     {
       message: {
@@ -48,6 +49,9 @@ const ChatComponent: React.FC = () => {
     console.log(previews);
     if (previews !== undefined) {
       setFilePreviews(previews);
+      if (previews.length > 0) {
+        setFileToShow(previews[0].name);
+      }
     }
   };
 
@@ -80,9 +84,10 @@ const ChatComponent: React.FC = () => {
       // For example, using the fetch API:
       console.log("Files ready to be uploaded: ", selectedFiles);
       await upsertFile(formData, bearer);
-      setFileLoading(false);
 
-      fetchPreviews();
+      await fetchPreviews();
+
+      setFileLoading(false);
 
       if (fileInputRef.current) {
         console.log("resetting");
@@ -106,25 +111,39 @@ const ChatComponent: React.FC = () => {
   };
 
   useEffect(() => {
+    WebViewer(
+      {
+        path: "/public",
+        licenseKey: import.meta.env.VITE_APRYSE_API_KEY,
+        // initialDoc:
+        //   "https://pdftron.s3.amazonaws.com/downloads/pl/demo-annotated.pdf",
+      },
+      viewer.current
+    ).then((instance) => {
+      const { documentViewer } = instance.Core;
+      setDocViewer(documentViewer);
+      // you can now call WebViewer APIs here...
+      // documentViewer.loadDocument()
+    });
+  }, []);
+
+  useEffect(() => {
     // get file previews
 
     if (bearer) {
       fetchPreviews();
     }
-
-    WebViewer(
-      {
-        path: "/public",
-        licenseKey: import.meta.env.VITE_APRYSE_API_KEY,
-        initialDoc:
-          "https://pdftron.s3.amazonaws.com/downloads/pl/demo-annotated.pdf",
-      },
-      viewer.current
-    ).then((instance) => {
-      const { documentViewer } = instance.Core;
-      // you can now call WebViewer APIs here...
-    });
   }, [bearer]);
+
+  useEffect(() => {
+    async function loadFile() {
+      if (fileToShow && docViewer) {
+        const url = await getFile(fileToShow, bearer);
+        docViewer.loadDocument(url);
+      }
+    }
+    loadFile();
+  }, [fileToShow, docViewer]);
 
   return (
     //   <div className="flex flex-col gap-2 items-start w-full h-screen group/cb0e46cf">

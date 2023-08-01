@@ -10,12 +10,13 @@ import os
 from qdrant_client.models import PointStruct, Distance, VectorParams, ScoredPoint
 
 
-
-embeddings_model = SentenceTransformer(os.environ.get("embeddings_model") or "all-MiniLM-L6-v2")
+embeddings_model = SentenceTransformer(
+    os.environ.get("embeddings_model") or "all-MiniLM-L6-v2"
+)
 embeddings_dimension = 384
 
-class QdrantVectorStore(VectorStore):
 
+class QdrantVectorStore(VectorStore):
     client: Optional[QdrantClient] = None
     collection_name: Optional[str] = None
 
@@ -23,7 +24,6 @@ class QdrantVectorStore(VectorStore):
         arbitrary_types_allowed = True
 
     def __init__(self):
-        
         # self.client = Qdrant.from_documents(
         #     [],
         #     embeddings,
@@ -36,21 +36,31 @@ class QdrantVectorStore(VectorStore):
             raise Exception("QDRANT_URL must be set as an environment variable.")
         qdrant_port = os.getenv("QDRANT_PORT") or "6333"
         api_key = os.getenv("QDRANT_API_KEY")
-        self.client = QdrantClient(url=os.getenv("QDRANT_URL"), port=qdrant_port, api_key=api_key)
-        self.client.recreate_collection(
-            collection_name="my_documents",
-            vectors_config=VectorParams(size=embeddings_dimension, distance=Distance.COSINE) 
+        self.client = QdrantClient(
+            url=os.getenv("QDRANT_URL"), port=qdrant_port, api_key=api_key
         )
+        try:
+            self.client.get_collection(collection_name="my_documents")
+        except:
+            self.client.create_collection(
+                collection_name="my_documents",
+                vectors_config=VectorParams(
+                    size=embeddings_dimension, distance=Distance.COSINE
+                ),
+            )
         self.collection_name = "my_documents"
 
     async def upsert(self, documents: List[PsychicDocument]) -> bool:
         langchain_docs = [
             Document(
-                page_content=doc.content, 
-                metadata={"title": doc.title, "id": doc.id, "source": doc.uri}
-            ) for doc in documents
+                page_content=doc.content,
+                metadata={"title": doc.title, "id": doc.id, "source": doc.uri},
+            )
+            for doc in documents
         ]
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000, chunk_overlap=100
+        )
         split_docs = text_splitter.split_documents(langchain_docs)
 
         points = []
@@ -65,45 +75,46 @@ class QdrantVectorStore(VectorStore):
             else:
                 doc_id = doc.metadata["id"]
                 seen_docs[doc.metadata["id"]] += 1
-                chunk_id = uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}_{seen_docs[doc.metadata['id']]}")
+                chunk_id = uuid.uuid5(
+                    uuid.NAMESPACE_DNS, f"{doc_id}_{seen_docs[doc.metadata['id']]}"
+                )
 
             # TODO: Fix this so that the vector output is of the format PointStruct expects
             vector = embeddings_model.encode([doc.page_content])[0]
             vector = vector.tolist()
 
-            points.append(PointStruct(
-                id=str(chunk_id),
-                payload={
-                    "metadata": {
-                        "title": doc.metadata["title"],
-                        "source": doc.metadata["source"],
-                        "chunk_id": chunk_id,
-                        "doc_id": doc_id,
+            points.append(
+                PointStruct(
+                    id=str(chunk_id),
+                    payload={
+                        "metadata": {
+                            "title": doc.metadata["title"],
+                            "source": doc.metadata["source"],
+                            "chunk_id": chunk_id,
+                            "doc_id": doc_id,
+                        },
+                        "content": doc.page_content,
                     },
-                    
-                    "content": doc.page_content
-                },
-                vector=vector
-            ))
+                    vector=vector,
+                )
+            )
 
-        self.client.upsert(
-            collection_name=self.collection_name,
-            points=points
-        )
+        self.client.upsert(collection_name=self.collection_name, points=points)
         return True
-    
+
     async def query(self, query: str) -> List[PsychicDocument]:
         query_vector = embeddings_model.encode([query])[0]
         query_vector = query_vector.tolist()
         results = self.client.search(
-            collection_name=self.collection_name,
-            query_vector=query_vector,
-            limit=5
+            collection_name=self.collection_name, query_vector=query_vector, limit=5
         )
-        results = [PsychicDocument(
-            id=doc.payload["metadata"]["doc_id"],
-            title=doc.payload["metadata"]["title"],
-            content=doc.payload["content"],
-            uri=doc.payload["metadata"]["source"]
-        ) for doc in results]
+        results = [
+            PsychicDocument(
+                id=doc.payload["metadata"]["doc_id"],
+                title=doc.payload["metadata"]["title"],
+                content=doc.payload["content"],
+                uri=doc.payload["metadata"]["source"],
+            )
+            for doc in results
+        ]
         return results

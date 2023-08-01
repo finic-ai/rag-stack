@@ -66,3 +66,29 @@ export const getFilePreviews = async (apiKey: string): Promise<any> => {
     return error;
   }
 };
+
+export const getFile = async (
+  fileName: string,
+  apiKey: string
+): Promise<any> => {
+  try {
+    console.log("file name:", fileName);
+    const response = await fetch(
+      import.meta.env.VITE_APP_SERVER_URL + "/get-file",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ file_name: fileName }),
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+    return data.signed_url;
+  } catch (error: any) {
+    console.error(`Error getting file: ${error.message}`);
+    return error;
+  }
+};
