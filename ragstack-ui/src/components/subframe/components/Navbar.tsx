@@ -54,7 +54,7 @@ const NavbarRoot = React.forwardRef<HTMLElement, NavbarRootProps>(
     return (
       <nav
         className={SubframeCore.twClassNames(
-          "flex bg-default-background border-b border-solid border-neutral-border w-full h-16 flex-col gap-2 items-start justify-center container max-w-none group/6ca1b963",
+          "flex bg-default-background border-b border-solid border-neutral-border w-full h-16 flex-col gap-2 items-start justify-center px-6 max-w-none group/6ca1b963",
           className
         )}
         ref={ref as any}

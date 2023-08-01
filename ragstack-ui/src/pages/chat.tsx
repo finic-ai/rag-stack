@@ -73,6 +73,10 @@ const ChatComponent: React.FC = () => {
       console.log("Files ready to be uploaded: ", selectedFiles);
       await upsertFile(formData, bearer);
       setFileLoading(false);
+      if (fileInputRef.current) {
+        console.log("resetting");
+        fileInputRef.current.value = "";
+      }
     } else {
       console.log("No files selected");
       setFileLoading(false);

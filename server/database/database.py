@@ -26,7 +26,7 @@ class Database:
         return None
 
     async def upsert(self, app_config: AppConfig, files: List[UploadFile]) -> bool:
-        self.create_bucket_if_not_exists(app_config=app_config)
+        await self.create_bucket_if_not_exists(app_config=app_config)
 
         for file in files:
             try:
