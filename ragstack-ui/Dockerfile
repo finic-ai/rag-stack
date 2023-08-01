@@ -1,8 +1,6 @@
-FROM python:3.7-alpine
+FROM node:14
 WORKDIR /ragstack
 COPY . .
-RUN pip install poetry
-RUN poetry install
-EXPOSE 8081
-COPY . .
-CMD ["poetry", "run", "start"]
+RUN npm install
+EXPOSE 8080
+CMD [ "npm", "run", "dev" ]

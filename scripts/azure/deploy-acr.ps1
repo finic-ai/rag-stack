@@ -4,6 +4,7 @@ $ErrorActionPreference = "Stop"
 $AzureDirectory = Get-Location
 $AcrDirectory = Join-Path -Path $AzureDirectory -ChildPath "acr"
 $ServerDirectory = Join-Path -Path $AzureDirectory -ChildPath "..\..\server"
+$UiDirectory = Join-Path -Path $AzureDirectory -ChildPath "..\..\ragstack-ui"
 
 try {
     # Prompt the user for their deployment details
@@ -42,6 +43,12 @@ try {
     docker build -t $ragServerImageName .
     docker push $ragServerImageName
     $Env:TF_VAR_rag_server_image_name = $ragServerImageName
+
+    # Change directory to the UI
+    Set-Location $UiDirectory
+    $ragUiImageName = "${ACR_LOGIN_SERVER}/ragstack-ui:latest"
+    docker build -t $ragUiImageName .
+    docker push $ragUiImageName
 } finally {
     # Return to the root directory
     Set-Location $AzureDirectory
