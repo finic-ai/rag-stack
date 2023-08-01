@@ -25,7 +25,7 @@ class Database:
             return AppConfig(app_id=row["app_id"], user_id=row["id"])
         return None
 
-    async def upsert(self, app_config: AppConfig, files: List[UploadFile]) -> bool:
+    async def upsert(self, app_config: AppConfig, files: List[UploadFile]):
         self.create_bucket_if_not_exists(app_config=app_config)
 
         for file in files:
@@ -72,7 +72,7 @@ class Database:
         pass
 
     # Creates a bucket per app_id if one doesn't exist already
-    async def create_bucket_if_not_exists(self, app_config: AppConfig):
+    def create_bucket_if_not_exists(self, app_config: AppConfig):
         try:
             self.supabase.storage.get_bucket(app_config.app_id)
         except StorageException as e:
