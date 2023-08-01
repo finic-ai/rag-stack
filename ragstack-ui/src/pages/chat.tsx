@@ -43,6 +43,14 @@ const ChatComponent: React.FC = () => {
     setInput(e.target.value);
   };
 
+  const fetchPreviews = async () => {
+    const previews = await getFilePreviews(bearer);
+    console.log(previews);
+    if (previews !== undefined) {
+      setFilePreviews(previews);
+    }
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     console.log("Message sent:", input);
@@ -73,6 +81,9 @@ const ChatComponent: React.FC = () => {
       console.log("Files ready to be uploaded: ", selectedFiles);
       await upsertFile(formData, bearer);
       setFileLoading(false);
+
+      fetchPreviews();
+
       if (fileInputRef.current) {
         console.log("resetting");
         fileInputRef.current.value = "";
@@ -96,13 +107,7 @@ const ChatComponent: React.FC = () => {
 
   useEffect(() => {
     // get file previews
-    const fetchPreviews = async () => {
-      const previews = await getFilePreviews(bearer);
-      console.log(previews);
-      if (previews !== undefined) {
-        setFilePreviews(previews);
-      }
-    };
+
     if (bearer) {
       fetchPreviews();
     }
@@ -206,10 +211,16 @@ const ChatComponent: React.FC = () => {
               console.log(filePreview);
               return (
                 <FileItem
-                  key={filePreview.name}
-                  selected={filePreview.name == fileToShow}
-                  name={filePreview.name}
-                  onClick={() => handleFilePreviewClick(filePreview.name)}
+                  key={filePreview.file_name}
+                  selected={filePreview.file_name == fileToShow}
+                  name={filePreview.file_name}
+                  onClick={() => handleFilePreviewClick(filePreview.file_name)}
+                  imagePreview={
+                    <img
+                      className="flex-none h-32 w-32"
+                      src={`data:image/jpeg;base64,${filePreview.file_preview_img}`}
+                    />
+                  }
                 />
               );
             })}
