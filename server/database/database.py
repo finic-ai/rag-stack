@@ -72,7 +72,7 @@ class Database:
         pass
 
     # Creates a bucket per app_id if one doesn't exist already
-    async def create_bucket_if_not_exists(self, app_config: AppConfig):
+    def create_bucket_if_not_exists(self, app_config: AppConfig):
         try:
             self.supabase.storage.get_bucket(app_config.app_id)
         except StorageException as e:
