@@ -17,8 +17,8 @@ from langchain.document_loaders import (
     UnstructuredWordDocumentLoader,
 )
 
-class FileConnector:
 
+class FileConnector:
     def __init__(self, files: List[UploadFile]):
         self.files = files
 
@@ -28,15 +28,19 @@ class FileConnector:
             extension = os.path.splitext(file.filename)[1].lower()
             if extension == ".pdf":
                 local_file_path = f"local_dir/{file.filename}"
-                if not os.path.exists('local_dir'):
-                    os.makedirs('local_dir')
+                if not os.path.exists("local_dir"):
+                    os.makedirs("local_dir")
                 with open(local_file_path, "wb") as f:
                     # Await on the content being read to ensure it's fully read
                     content = await file.read()
                     f.write(content)
                 loader = PyMuPDFLoader(local_file_path)
                 content = loader.load()[0].page_content
-            else: 
-                content = file.file.read().decode('utf-8')
-            documents.append(PsychicDocument(id=str(uuid.uuid4()), title=file.filename, content=content))
+            else:
+                content = file.file.read().decode("utf-8")
+            documents.append(
+                PsychicDocument(
+                    id=str(uuid.uuid4()), title=file.filename, content=content
+                )
+            )
         return documents
