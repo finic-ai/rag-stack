@@ -25,7 +25,7 @@ export const upsertFile = async (
 export const getBotResponse = async (
   input: string,
   apiKey: string
-): Promise<string | null> => {
+): Promise<any | null> => {
   try {
     const response = await fetch(
       import.meta.env.VITE_APP_SERVER_URL + "/ask-question",
@@ -39,7 +39,7 @@ export const getBotResponse = async (
       }
     );
     const data = await response.json();
-    return data.answer;
+    return data;
   } catch (error: any) {
     console.error(`Error upserting files: ${error.message}`);
     return error;
