@@ -206,7 +206,7 @@ const ChatComponent: React.FC = () => {
         </div>
         <div className="flex flex-col bg-neutral-50 pt-4 gap-4 items-start justify-center grow shrink-0 basis-0 w-full h-full overflow-y-auto">
           <div className="flex flex-col  pr-4 pb-4 pl-4 flex-grow gap-2 items-start w-full h-full">
-            <div className="flex bg-brand-50 border border-solid border-brand-300 rounded pt-1 pr-4 pb-1 pl-4 gap-2 items-center w-full">
+            {/* <div className="flex bg-brand-50 border border-solid border-brand-300 rounded pt-1 pr-4 pb-1 pl-4 gap-2 items-center w-full">
               <span className="grow shrink-0 basis-0 w-full text-body font-body text-default-font">
                 Are you an insurance agent?
               </span>
@@ -217,7 +217,7 @@ const ChatComponent: React.FC = () => {
               >
                 Learn more
               </Button>
-            </div>
+            </div> */}
             <div className="w-full flex-grow" ref={viewer}></div>
           </div>
         </div>
