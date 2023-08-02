@@ -17,6 +17,7 @@ class UpsertFilesResponse(BaseModel):
 
 class AskQuestionResponse(BaseModel):
     answer: str
+    sources: List[str]
 
 
 class GetFileResponse(BaseModel):

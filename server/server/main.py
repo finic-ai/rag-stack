@@ -132,9 +132,11 @@ async def ask_question(
     try:
         question = request.question
         documents = await vector_store.query(question)
-        print(documents)
         answer = await llm.ask(documents, question)
-        return AskQuestionResponse(answer=answer)
+        print(answer)
+        return AskQuestionResponse(
+            answer=answer, sources=[doc.title for doc in documents]
+        )
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
