@@ -1,4 +1,3 @@
-export * from "./components/NewComponentCopy"
 export * from "./components/NewComponent"
 export * from "./components/FileItem"
 export * from "./components/ChatBubbleThem"
