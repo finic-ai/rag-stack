@@ -18,8 +18,10 @@ sentence-transformers = "^2.2.2"
 python-multipart = "^0.0.6"
 gpt4all = "^1.0.5"
 pymupdf = "^1.22.5"
-openai = "^0.27.8"
 supabase = "^1.0.3"
+poetry-dotenv-plugin = "^0.2.0"
+openai = "^0.27.8"
+torch = { url = "http://download.pytorch.org/whl/cpu/torch-2.0.1%2Bcpu-cp310-cp310-linux_x86_64.whl" }
 
 [tool.poetry.scripts]
 start = "server.main:start"
