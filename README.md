@@ -6,7 +6,7 @@ Deploy a private ChatGPT alternative hosted within your VPC. Connect it to your 
     <img src="https://img.shields.io/badge/slack-join-blue.svg?logo=slack" alt="Slack">
 </a>
 <a href="https://discord.gg/vhxm8qMQc">
-    <img alt="Discord" src="https://img.shields.io/discord/660863154703695893.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" />
+    <img alt="Discord" src="https://img.shields.io/discord/1131844815005429790?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" />
 </a>
 <a href="https://github.com/psychicapi/rag-stack/issues?q=is%3Aissue+is%3Aclosed" target="_blank">
     <img src="https://img.shields.io/github/issues-closed/psychicapi/psychic?color=blue" alt="Issues">
