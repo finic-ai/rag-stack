@@ -40,6 +40,42 @@ variable "qdrant_port" {
   default     = "443"
 }
 
+variable "rag_server_image_name" {
+  description = "The Docker image name for the RAG server."
+  type        = string
+  default = "jfan001/ragstack-server:latest"
+}
+
+variable "rag_server_image_login_server" {
+  description = "The Docker registry URL for the RAG server image."
+  type        = string
+  default     = "https://index.docker.io/v1/"
+}
+
+variable "rag_server_image_username" {
+  description = "The Docker registry username for the RAG server image."
+  type        = string
+  default     = ""
+}
+
+variable "rag_server_image_password" {
+  description = "The Docker registry password for the RAG server image."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "superbase_url" {
+  description = "The Superbase URL."
+  type        = string
+}
+
+variable "superbase_api_key" {
+  description = "The Superbase API key."
+  type        = string
+  sensitive   = true
+}
+
 module "aks-cluster" {
   source       = "./aks-cluster"
 
@@ -179,6 +215,39 @@ resource "kubernetes_service" "qdrant_service" {
   }
 }
 
+resource "kubernetes_secret" "docker_registry_secret" {
+  metadata {
+    name = "docker-registry-secret"
+    namespace = kubernetes_namespace.rag_stack.metadata[0].name
+  }
+
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      "auths" = {
+        "${var.rag_server_image_login_server}" = {
+          "username" = "${var.rag_server_image_username}"
+          "password" = "${var.rag_server_image_password}"
+        }
+      }
+    })
+  }
+
+  type = "kubernetes.io/dockerconfigjson"
+}
+
+resource "kubernetes_secret" "superbase_api_secret" {
+  metadata {
+    name = "superbase-api-secret"
+    namespace = kubernetes_namespace.rag_stack.metadata[0].name
+  }
+
+  data = {
+    "SUPABASE_KEY" = var.superbase_api_key
+  }
+
+  type = "Opaque"
+}
+
 resource "kubernetes_deployment" "rag_server" {
   depends_on = [kubernetes_service.qdrant_service]
   metadata {
@@ -202,8 +271,12 @@ resource "kubernetes_deployment" "rag_server" {
         }
       }
       spec {
+        image_pull_secrets {
+          name = kubernetes_secret.docker_registry_secret.metadata[0].name
+        }
+
         container {
-          image = "jfan001/ragstack-server:latest"
+          image = var.rag_server_image_name
           name = "rag-server-container"
           port {
             container_port = 8080
@@ -219,17 +292,36 @@ resource "kubernetes_deployment" "rag_server" {
             name  = "QDRANT_URL"
             value = "http://${kubernetes_service.qdrant_service[0].status[0].load_balancer[0].ingress[0].ip}"
           }
-
           env {
             name = "LLM_URL"
             value = "http://${kubernetes_service.falcon7b_service[0].status[0].load_balancer[0].ingress[0].ip}"
 
           }
-
           env {
             name  = "QDRANT_PORT"
             value = var.qdrant_port
           }
+          env {
+            name  = "SUPABASE_URL"
+            value = var.superbase_url
+          }
+          
+          env {
+            name = "SUPABASE_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.superbase_api_secret.metadata[0].name
+                key  = "SUPABASE_KEY"
+              }
+            }
+          }
+          env {
+            name  = "USE_API_KEY"
+            value = var.superbase_url != "" ? "true" : "false"
+          }
+        }
+        node_selector = {
+          "agentpool" = "default"
         }
       }
     }

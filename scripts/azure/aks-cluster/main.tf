@@ -20,7 +20,6 @@ variable "region" {
 variable "resource_group_name" {
   description = "The name of the Azure resource group"
   type        = string
-  default     = "rag-stack-resources"
 }
 
 provider "azurerm" {
@@ -29,15 +28,15 @@ provider "azurerm" {
   subscription_id = var.subscription_id
 }
 
-resource "azurerm_resource_group" "aks_rg" {
+resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.region
 }
 
 resource "azurerm_kubernetes_cluster" "aks_cluster" {
   name                = "rag-stack"
-  location            = azurerm_resource_group.aks_rg.location
-  resource_group_name = azurerm_resource_group.aks_rg.name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = "rag-stack"
 
   identity {
