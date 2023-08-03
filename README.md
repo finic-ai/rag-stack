@@ -18,7 +18,7 @@ Deploy a private ChatGPT alternative hosted within your VPC. Connect it to your 
 
 **Retrieval Augmented Generation (RAG)** is a technique where the capabilities of a large language model (LLM) are augmented by retrieving information from other systems and inserting them into the LLM’s context window via a prompt. This gives LLMs information beyond what was provided in their training data, which is necessary for almost every enterprise use case. Examples include data from current web pages, data from SaaS apps like Confluence or Salesforce, and data from documents like sales contracts and PDFs.
 
-RAG works better than fine-tuning the model because it’s cheaper, it’s faster, and it’s more reliable since the source of information is provided with each response.
+RAG works better than fine-tuning the model because it’s cheaper, it’s faster, and it’s more reliable since the source of information is provided with each response. 
 
 RAGstack deploys the following resources for retrieval-augmented generation:
 
