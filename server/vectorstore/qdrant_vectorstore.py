@@ -1,5 +1,5 @@
 import os
-from models.models import Document as PsychicDocument, VectorStore
+from models.models import Document as PsychicDocument, VectorStore, AppConfig
 from typing import List, Any, Optional
 import uuid
 from qdrant_client import QdrantClient
@@ -8,6 +8,7 @@ from sentence_transformers import SentenceTransformer
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
 from qdrant_client.models import PointStruct, Distance, VectorParams, ScoredPoint
+from qdrant_client.http import models as rest
 
 
 embeddings_model = SentenceTransformer(
@@ -50,7 +51,9 @@ class QdrantVectorStore(VectorStore):
             )
         self.collection_name = "my_documents"
 
-    async def upsert(self, documents: List[PsychicDocument]) -> bool:
+    async def upsert(
+        self, documents: List[PsychicDocument], app_config: AppConfig
+    ) -> bool:
         langchain_docs = [
             Document(
                 page_content=doc.content,
@@ -88,6 +91,7 @@ class QdrantVectorStore(VectorStore):
                     id=str(chunk_id),
                     payload={
                         "metadata": {
+                            "tenant_id": app_config.app_id,
                             "title": doc.metadata["title"],
                             "source": doc.metadata["source"],
                             "chunk_id": chunk_id,
@@ -102,12 +106,20 @@ class QdrantVectorStore(VectorStore):
         self.client.upsert(collection_name=self.collection_name, points=points)
         return True
 
-    async def query(self, query: str) -> List[PsychicDocument]:
+    async def query(self, query: str, app_config: AppConfig) -> List[PsychicDocument]:
         query_vector = embeddings_model.encode([query])[0]
         query_vector = query_vector.tolist()
         results = self.client.search(
-            collection_name=self.collection_name, query_vector=query_vector, limit=5
+            collection_name=self.collection_name,
+            query_vector=query_vector,
+            query_filter={
+                "must": [
+                    {"key": "metadata.tenant_id", "match": {"value": app_config.app_id}}
+                ]
+            },
+            limit=5,
         )
+        print(results)
         results = [
             PsychicDocument(
                 id=doc.payload["metadata"]["doc_id"],
