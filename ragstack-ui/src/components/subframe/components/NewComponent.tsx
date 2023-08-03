@@ -4,7 +4,7 @@
 
 import classNames from "classnames";
 import * as SubframeCore from "@subframe/core";
-import React, {useRef, useEffect} from "react";
+import React, { useRef, useEffect } from "react";
 import { ChatBubbleYou } from "./ChatBubbleYou";
 import { AvatarImage } from "./AvatarImage";
 import { ChatBubbleThem } from "./ChatBubbleThem";
@@ -12,6 +12,8 @@ import { ChatBubbleThem } from "./ChatBubbleThem";
 interface NewComponentRootProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   messages: Array<any>;
+  didSelectSource: Function;
+  loading: boolean;
 }
 
 const NewComponentRoot = React.forwardRef<HTMLElement, NewComponentRootProps>(
@@ -38,30 +40,45 @@ const NewComponentRoot = React.forwardRef<HTMLElement, NewComponentRootProps>(
         ref={ref as any}
         {...otherProps}
       >
-        
         <div className="flex flex-col gap-4 items-start grow shrink-0 basis-0 h-full w-full">
-          {otherProps.messages.map((message) => { 
+          {otherProps.messages.map((message) => {
             // If message.user is true, then render ChatBubbleYou otherwise render ChatBubbleThem
             if (message.isUser) {
               return (
-                <ChatBubbleYou
-                  time={""}
-                  message={message.message.answer}
-                />
+                <ChatBubbleYou time={""} message={message.message.answer} />
               );
             } else {
+              console.log(message.message.sources);
+              const dedupeSources = [...new Set(message.message.sources)];
               return (
                 <ChatBubbleThem
                   time={""}
                   avatar={
-                    <AvatarImage src="https://res.cloudinary.com/demo/image/upload/v1690586110/CleanShot_2023-07-28_at_16.14.51_2x_lob1e0.png" />
+                    <AvatarImage src="https://res.cloudinary.com/demo/image/upload/v1690994866/Icon_6_mo6skf.png" />
                   }
                   name="Bot"
+                  loading={false}
                   message={message.message.answer}
+                  sources={dedupeSources}
+                  didSelectSource={otherProps.didSelectSource}
                 />
               );
             }
           })}
+          {otherProps.loading ? (
+            <ChatBubbleThem
+              time={""}
+              avatar={
+                <AvatarImage src="https://res.cloudinary.com/demo/image/upload/v1690994866/Icon_6_mo6skf.png" />
+              }
+              name="Bot"
+              message="..."
+              sources={[]}
+              didSelectSource={otherProps.didSelectSource}
+              loading={true}
+            />
+          ) : null}
+
           <div ref={messagesEndRef} />
         </div>
       </div>

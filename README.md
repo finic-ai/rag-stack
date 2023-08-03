@@ -2,11 +2,8 @@
 Deploy a private ChatGPT alternative hosted within your VPC. Connect it to your organization's knowledge base and use it as a corporate oracle. Supports open-source LLMs like Llama 2, Falcon, and GPT4All.
 
 <p align="center">
-<a href="https://join.slack.com/t/psychicapi/shared_invite/zt-1yptnhwcz-SiOCnrbqnBDsuzps9sEMSw" target="_blank">
-    <img src="https://img.shields.io/badge/slack-join-blue.svg?logo=slack" alt="Slack">
-</a>
 <a href="https://discord.gg/vhxm8qMQc">
-    <img alt="Discord" src="https://img.shields.io/discord/660863154703695893.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" />
+    <img alt="Discord" src="https://img.shields.io/discord/1131844815005429790?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" />
 </a>
 <a href="https://github.com/psychicapi/rag-stack/issues?q=is%3Aissue+is%3Aclosed" target="_blank">
     <img src="https://img.shields.io/github/issues-closed/psychicapi/psychic?color=blue" alt="Issues">
@@ -36,13 +33,12 @@ RAGstack deploys the following resources for retrieval-augmented generation:
 ### Server + UI
 
 Simple server and UI that handles PDF upload, so that you can chat over your PDFs using Qdrant and the open-source LLM of choice.
-
-<img width="800" alt="CleanShot 2023-07-18 at 20 36 49@2x" src="https://github.com/psychic-api/rag-stack/assets/14931371/2869ff99-c077-400d-9663-08a9468f5139">
+<img width="800" alt="Screenshot 2023-08-02 at 9 22 27 PM" src="https://github.com/psychic-api/rag-stack/assets/14931371/385f07d0-765f-4afd-b2da-88c3126184b7">
 
 ## Run locally
 
 1. Copy `ragstack-ui/local.env` into `ragstack-ui/.env`
-2. Run `./run-dev`. This will download [ggml-gpt4all-j-v1.3-groovy.bin](https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin) into `server/llm/local/` and run the server, LLM, and Qdrant vector database locally.
+2. Run `scripts/local/run-dev`. This will download [ggml-gpt4all-j-v1.3-groovy.bin](https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin) into `server/llm/local/` and run the server, LLM, and Qdrant vector database locally.
 
 All services will be ready once you see the following message:
 
@@ -54,8 +50,8 @@ INFO:     Application startup complete.
 
 To deploy the RAG stack using `Falcon-7B` running on GPUs to your own google cloud instance, go through the following steps:
 
-1. Run `./gcp/deploy-gcp.sh`. This will prompt you for your GCP project ID, service account key file, and region as well as some other parameters (model, HuggingFace token etc).
-2. If you get an error on the `Falcon-7B` deployment step, run the following commands and then run `./gcp/deploy-gcp.sh` again:
+1. Run `scripts/gcp/deploy-gcp.sh`. This will prompt you for your GCP project ID, service account key file, and region as well as some other parameters (model, HuggingFace token etc).
+2. If you get an error on the `Falcon-7B` deployment step, run the following commands and then run `scripts/gcp/deploy-gcp.sh` again:
 
 ```
 gcloud config set compute/zone YOUR-REGION-HERE
@@ -71,7 +67,7 @@ The deployment script was implemented using Terraform.
 
 To deploy the RAG stack using `Falcon-7B` running on GPUs to your own AWS EC2 instances (using ECS), go through the following steps:
 
-1. Run `./aws/deploy-aws.sh`. This will prompt you for your AWS credentials as well as some other parameters (model, HuggingFace token etc).
+1. Run `scripts/aws/deploy-aws.sh`. This will prompt you for your AWS credentials as well as some other parameters (model, HuggingFace token etc).
 
 The deployment script was implemented using Terraform.
 

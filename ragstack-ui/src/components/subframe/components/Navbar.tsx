@@ -45,7 +45,7 @@ const NavbarRoot = React.forwardRef<HTMLElement, NavbarRootProps>(
   function NavbarRoot(
     {
       children,
-      logo = "https://res.cloudinary.com/demo/image/upload/v1683583714/logo_awqb7m.png",
+      logo = "https://res.cloudinary.com/demo/image/upload/v1690994866/Icon_6_mo6skf.png",
       className,
       ...otherProps
     }: NavbarRootProps,

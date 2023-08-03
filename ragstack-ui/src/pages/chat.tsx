@@ -13,7 +13,7 @@ import { TextInput } from "../components/subframe";
 import React, { ChangeEvent, useState, useRef, useEffect } from "react";
 import { FaRobot, FaUser, FaPaperclip } from "react-icons/fa";
 import WebViewer from "@pdftron/webviewer";
-import { upsertFile, getBotResponse, getFilePreviews } from "../utils";
+import { upsertFile, getBotResponse, getFilePreviews, getFile } from "../utils";
 import supabase from "../lib/supabaseClient";
 import { useUserStateContext } from "../context/UserStateContext";
 
@@ -29,6 +29,7 @@ const ChatComponent: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [filePreviews, setFilePreviews] = useState<Array<any>>([]);
   const [fileToShow, setFileToShow] = useState("");
+  const [docViewer, setDocViewer] = useState<any>(null);
   const [messages, setMessages] = useState<Array<any>>([
     {
       message: {
@@ -45,26 +46,33 @@ const ChatComponent: React.FC = () => {
 
   const fetchPreviews = async () => {
     const previews = await getFilePreviews(bearer);
-    console.log(previews);
     if (previews !== undefined) {
       setFilePreviews(previews);
+      if (previews.length > 0) {
+        setFileToShow(previews[0].file_name);
+      }
     }
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log("Message sent:", input);
     setInput("");
     setMessages((prevMessages) => [
       ...prevMessages,
       { message: { answer: input, sources: [] }, isUser: true },
     ]);
     setLoading(true);
-    const answer = await getBotResponse(input, bearer);
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { message: { answer: answer, sources: [] }, isUser: false },
-    ]);
+    const response = await getBotResponse(input, bearer);
+    if (response) {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          message: { answer: response.answer, sources: response.sources },
+          isUser: false,
+        },
+      ]);
+    }
+
     setLoading(false);
   };
 
@@ -80,9 +88,10 @@ const ChatComponent: React.FC = () => {
       // For example, using the fetch API:
       console.log("Files ready to be uploaded: ", selectedFiles);
       await upsertFile(formData, bearer);
-      setFileLoading(false);
 
-      fetchPreviews();
+      await fetchPreviews();
+
+      setFileLoading(false);
 
       if (fileInputRef.current) {
         console.log("resetting");
@@ -105,83 +114,47 @@ const ChatComponent: React.FC = () => {
     console.log("File preview clicked: ", name);
   };
 
+  const didSelectSource = (source: string) => {
+    console.log("Source selected: ", source);
+    setFileToShow(source);
+  };
+
+  useEffect(() => {
+    WebViewer(
+      {
+        path: "/public",
+        licenseKey: import.meta.env.VITE_APRYSE_API_KEY,
+        // initialDoc:
+        //   "https://pdftron.s3.amazonaws.com/downloads/pl/demo-annotated.pdf",
+      },
+      viewer.current
+    ).then((instance) => {
+      const { documentViewer } = instance.Core;
+      setDocViewer(documentViewer);
+      // you can now call WebViewer APIs here...
+      // documentViewer.loadDocument()
+    });
+  }, []);
+
   useEffect(() => {
     // get file previews
 
     if (bearer) {
       fetchPreviews();
     }
-
-    WebViewer(
-      {
-        path: "/public",
-        licenseKey: import.meta.env.VITE_APRYSE_API_KEY,
-        initialDoc:
-          "https://pdftron.s3.amazonaws.com/downloads/pl/demo-annotated.pdf",
-      },
-      viewer.current
-    ).then((instance) => {
-      const { documentViewer } = instance.Core;
-      // you can now call WebViewer APIs here...
-    });
   }, [bearer]);
 
-  return (
-    //   <div className="flex flex-col gap-2 items-start w-full h-screen group/cb0e46cf">
-    //   <Navbar>
-    //     <Navbar.Item>Log out</Navbar.Item>
-    //   </Navbar>
-    //   <div className="flex flex-col gap-2 items-start grow shrink-0 basis-0 h-full w-full">
-    //     <div className="flex bg-default-background grow shrink-0 basis-0 h-full w-full items-start">
-    //       <div className="flex border-r border-solid border-neutral-border pt-6 pr-6 pb-6 pl-6 h-full flex-col gap-4 items-start">
-    //         <Button className="flex-none h-10 w-full" icon="FeatherFile">
-    //           Upload PDF
-    //         </Button>
-    //         <div className="flex bg-neutral-300 flex-none h-px w-full flex-col gap-2 items-center" />
-    //         <div className="flex flex-col gap-6 items-start">
-    //           <FileItem />
-    //           <FileItem selected={true} name="claim_2\n.pdf" />
-    //           <FileItem selected={false} name="claim_3.pdf" />
-    //           <FileItem selected={false} name="claim_4.pdf" />
-    //           <FileItem />
-    //         </div>
-    //       </div>
-    //       <div className="flex bg-neutral-50 pt-12 gap-4 items-start justify-center grow shrink-0 basis-0 w-full h-full">
-    //         <div className="flex pt-4 pr-4 pb-4 pl-4 flex-col gap-2 items-start">
-    //           <div className="flex bg-brand-50 border border-solid border-brand-300 rounded pt-1 pr-4 pb-1 pl-4 gap-2 items-center w-full">
-    //             <span className="grow shrink-0 basis-0 w-full text-body font-body text-default-font">
-    //               Are you an insurance agent?
-    //             </span>
-    //             <Button
-    //               variant="Neutral Tertiary"
-    //               size="Small"
-    //               rightIcon="FeatherChevronRight"
-    //             >
-    //               Learn more
-    //             </Button>
-    //           </div>
-    //           <img
-    //             className="flex-none h-192"
-    //             src="https://res.cloudinary.com/demo/image/upload/v1690587883/Screenshot_2023-07-28_at_4.44.27_PM_c4dmit.png"
-    //           />
-    //         </div>
-    //       </div>
-    //       <div className="flex border-l border-solid border-neutral-border pt-4 pr-4 pb-4 pl-4 flex-col gap-4 items-start h-full">
-    //         <NewComponent messages={messages} />
-    //         <div className="flex gap-2 items-center w-full">
-    //           <TextInput
-    //             className="grow shrink-0 basis-0 w-full h-auto"
-    //             label=""
-    //           />
-    //           <Button size="Small" rightIcon="FeatherSend">
-    //             Send
-    //           </Button>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </div>
+  useEffect(() => {
+    async function loadFile() {
+      if (fileToShow && docViewer) {
+        const url = await getFile(fileToShow, bearer);
+        docViewer.loadDocument(url);
+      }
+    }
+    loadFile();
+  }, [fileToShow, docViewer]);
 
+  return (
     <div className="flex flex-col  items-start w-full h-screen group/cb0e46cf">
       <Navbar className="shrink-0">
         <Navbar.Item onClick={() => supabase.auth.signOut()}>
@@ -233,7 +206,7 @@ const ChatComponent: React.FC = () => {
         </div>
         <div className="flex flex-col bg-neutral-50 pt-4 gap-4 items-start justify-center grow shrink-0 basis-0 w-full h-full overflow-y-auto">
           <div className="flex flex-col  pr-4 pb-4 pl-4 flex-grow gap-2 items-start w-full h-full">
-            <div className="flex bg-brand-50 border border-solid border-brand-300 rounded pt-1 pr-4 pb-1 pl-4 gap-2 items-center w-full">
+            {/* <div className="flex bg-brand-50 border border-solid border-brand-300 rounded pt-1 pr-4 pb-1 pl-4 gap-2 items-center w-full">
               <span className="grow shrink-0 basis-0 w-full text-body font-body text-default-font">
                 Are you an insurance agent?
               </span>
@@ -244,14 +217,18 @@ const ChatComponent: React.FC = () => {
               >
                 Learn more
               </Button>
-            </div>
+            </div> */}
             <div className="w-full flex-grow" ref={viewer}></div>
           </div>
         </div>
 
         <div className="flex border-l border-solid border-neutral-border pt-4 pr-4 pb-4 pl-4 flex-col gap-4 items-start h-full">
           <div className="overflow-y-auto flex-grow">
-            <NewComponent messages={messages} />
+            <NewComponent
+              messages={messages}
+              didSelectSource={didSelectSource}
+              loading={loading}
+            />
           </div>
           <form
             onSubmit={handleSubmit}

@@ -66,7 +66,7 @@ class Database:
 
     async def get_file_signed_url(self, app_config: AppConfig, file_name: str) -> str:
         res = self.supabase.storage.from_(app_config.app_id).create_signed_url(
-            path="{}/uploads/{}".format(app_config.app_id, file_name), expires_in=3600
+            path="uploads/{}".format(file_name), expires_in=3600
         )
         return res["signedURL"]
 
