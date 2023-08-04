@@ -35,7 +35,9 @@ class FileConnector:
                     content = await file.read()
                     f.write(content)
                 loader = PyMuPDFLoader(local_file_path)
-                content = loader.load()[0].page_content
+                content = ""
+                for page in loader.load():
+                    content += page.page_content
             else:
                 content = file.file.read().decode("utf-8")
             documents.append(
