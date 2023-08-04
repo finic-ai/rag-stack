@@ -1,8 +1,14 @@
+## Use RAG Stack
+
 ### Connect to AKS cluster
 
 `az aks get-credentials --resource-group rag-stack-resources --name rag-stack --overwrite-existing`
 
-### Connect to rag-server
+### Connect to RAG Stack UI
+
+`kubectl port-forward -n rag-stack svc/rag-ui 8080:8080`
+
+### Connect to RAG Stack Server
 
 `kubectl port-forward -n rag-stack svc/rag-server 8081:8081`
 

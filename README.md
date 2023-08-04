@@ -73,12 +73,25 @@ The deployment script was implemented using Terraform.
 
 3. You can run the frontend by creating a `.env` file in `ragstack-ui` and setting `VITE_SERVER_URL` to the url of the ALB instance.
 
+## Deploy to Azure
+
+To deploy the RAG stack using `Falcon-7B` running on GPUs to your own AKS, go through the following steps:
+
+1. Run `./azure/deploy-aks.sh`. This will prompt you for your AKS subscription as well as some other parameters (model, HuggingFace token etc).
+
+The deployment script was implemented using Terraform.
+
+1. You can run the frontend by creating a `.env` file in `ragstack-ui` and setting `VITE_SERVER_URL` to the url of the `ragstack-server` service in your AKS.
+
+*Please note that this AKS deployment is using node pool with NVIDIA Tesla T4 Accelerator which is not in all subscriptions available*
+
 ## Roadmap
 
 * ✅ GPT4all support
 * ✅ Falcon-7b support
 * ✅ Deployment on GCP
 * ✅ Deployment on AWS
+* ✅ Deployment on Azure
 * 🚧 Llama-2-40b support 
 
 
