@@ -24,7 +24,7 @@ RAGstack deploys the following resources for retrieval-augmented generation:
 
 * Falcon-7b: On the cloud, RAGstack deploys Technology Innovation Institute's [falcon-7b](https://huggingface.co/tiiuae/falcon-7b) model onto a GPU-enabled GKE cluster.
 
-* LLama 2: On the cloud, RAGstack can also deploy the 7B paramter version of Meta's [Llama 2](https://ai.meta.com/llama/) model onto a GPU-enabled GKE cluster.
+* LLama 2: On the cloud, RAGstack can also deploy the 7B parameter version of Meta's [Llama 2](https://ai.meta.com/llama/) model onto a GPU-enabled GKE cluster.
 
 ### Vector database
 
