@@ -52,11 +52,12 @@ class Gpt4AllLLM(LLM):
 
         docs = [
             Document(
-                page_content=doc.payload.get("content"),
-                metadata={**doc.payload.get("metadata")},
+                page_content=doc.content,
+                metadata={"source": doc.title},
             )
             for doc in documents
         ]
+        print(docs)
         result = chain.run(input_documents=docs, question=question, callbacks=callbacks)
 
         return result

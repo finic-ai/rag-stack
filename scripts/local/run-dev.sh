@@ -33,6 +33,11 @@ cd ../server
 poetry install
 export LLM_TYPE=gpt4all
 export QDRANT_URL=http://localhost
+if [ -f .env ]; then
+  set -a # Automatically export all variables
+  source .env
+  set +a # Stop automatically exporting variables
+fi
 # Download the gpt4all model if it doesn't exist
 FILE_PATH="llm/local/ggml-gpt4all-j-v1.3-groovy.bin"
 

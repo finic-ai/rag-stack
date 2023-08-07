@@ -1,4 +1,5 @@
 # 🧺 RAGstack
+
 Deploy a private ChatGPT alternative hosted within your VPC. Connect it to your organization's knowledge base and use it as a corporate oracle. Supports open-source LLMs like Llama 2, Falcon, and GPT4All.
 
 <p align="center">
@@ -20,15 +21,16 @@ RAG works better than fine-tuning the model because it’s cheaper, it’s faste
 RAGstack deploys the following resources for retrieval-augmented generation:
 
 ### Open-source LLM
-* GPT4All: When you run locally, RAGstack will download and deploy Nomic AI's [gpt4all](https://github.com/nomic-ai/gpt4all) model, which runs on consumer CPUs.
 
-* Falcon-7b: On the cloud, RAGstack deploys Technology Innovation Institute's [falcon-7b](https://huggingface.co/tiiuae/falcon-7b) model onto a GPU-enabled GKE cluster.
+- GPT4All: When you run locally, RAGstack will download and deploy Nomic AI's [gpt4all](https://github.com/nomic-ai/gpt4all) model, which runs on consumer CPUs.
 
-* LLama 2: On the cloud, RAGstack can also deploy the 7B paramter version of Meta's [Llama 2](https://ai.meta.com/llama/) model onto a GPU-enabled GKE cluster.
+- Falcon-7b: On the cloud, RAGstack deploys Technology Innovation Institute's [falcon-7b](https://huggingface.co/tiiuae/falcon-7b) model onto a GPU-enabled GKE cluster.
+
+- LLama 2: On the cloud, RAGstack can also deploy the 7B paramter version of Meta's [Llama 2](https://ai.meta.com/llama/) model onto a GPU-enabled GKE cluster.
 
 ### Vector database
 
-* [Qdrant](https://github.com/qdrant/qdrant): Qdrant is an open-source vector database written in Rust, so it's highly performant and self-hostable.
+- [Qdrant](https://github.com/qdrant/qdrant): Qdrant is an open-source vector database written in Rust, so it's highly performant and self-hostable.
 
 ### Server + UI
 
@@ -38,7 +40,21 @@ Simple server and UI that handles PDF upload, so that you can chat over your PDF
 ## Run locally
 
 1. Copy `ragstack-ui/local.env` into `ragstack-ui/.env`
-2. Run `scripts/local/run-dev`. This will download [ggml-gpt4all-j-v1.3-groovy.bin](https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin) into `server/llm/local/` and run the server, LLM, and Qdrant vector database locally.
+2. Copy `server/example.env` into `server/.env`
+3. In `server/.env` replace `YOUR_SUPABASE_URL` with your supabase project url and `YOUR_SUPABASE_KEY` with your supabase secret API key. In `ragstack-ui/.env` replace `YOUR_SUPABASE_URL` with your supabase project url and `YOUR_SUPABASE_PUBLIC_KEY` with your supabase secret API key. You can find these values in your supabase dashboard under [Settings > API](https://supabase.com/docs/guides/api/api-keys)
+4. In Supabase, create a table `ragstack_users` with the following columns:
+   | Column name | Type |
+   | ----------- | ---- |
+   | id | uuid |
+   | app_id | uuid |
+   | secret_key | uuid |
+   | email | text |
+   | avatar_url | text |
+   | full_name | text |
+
+If you added row level security, make sure that inserts and selects have a `WITH CHECK` expression of `(auth.uid() = id)`.
+
+5. Run `scripts/local/run-dev`. This will download [ggml-gpt4all-j-v1.3-groovy.bin](https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin) into `server/llm/local/` and run the server, LLM, and Qdrant vector database locally.
 
 All services will be ready once you see the following message:
 
@@ -83,17 +99,16 @@ The deployment script was implemented using Terraform.
 
 1. You can run the frontend by creating a `.env` file in `ragstack-ui` and setting `VITE_SERVER_URL` to the url of the `ragstack-server` service in your AKS.
 
-*Please note that this AKS deployment is using node pool with NVIDIA Tesla T4 Accelerator which is not in all subscriptions available*
+_Please note that this AKS deployment is using node pool with NVIDIA Tesla T4 Accelerator which is not in all subscriptions available_
 
 ## Roadmap
 
-* ✅ GPT4all support
-* ✅ Falcon-7b support
-* ✅ Deployment on GCP
-* ✅ Deployment on AWS
-* ✅ Deployment on Azure
-* 🚧 Llama-2-40b support 
-
+- ✅ GPT4all support
+- ✅ Falcon-7b support
+- ✅ Deployment on GCP
+- ✅ Deployment on AWS
+- ✅ Deployment on Azure
+- 🚧 Llama-2-40b support
 
 ## Credits
 
