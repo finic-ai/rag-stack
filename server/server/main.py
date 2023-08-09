@@ -20,6 +20,7 @@ from models.models import AppConfig, FilePreview
 import base64
 from connectors import FileConnector
 from vectorstore import QdrantVectorStore
+from vectorstore import WeaviateVectorStore
 from llm import get_selected_llm
 from database import Database
 
@@ -34,7 +35,7 @@ app.add_middleware(
 )
 
 bearer_scheme = HTTPBearer()
-vector_store = QdrantVectorStore()
+vector_store = WeaviateVectorStore() if os.environ.get('USE_WEAVIATE_VECTORSTORE') == 'true' else QdrantVectorStore()
 llm = get_selected_llm()
 db = Database()
 
