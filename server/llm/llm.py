@@ -1,20 +1,13 @@
 from models.models import Document as PsychicDocument, LLM
-from typing import List, Any, Optional
-import uuid
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from typing import List, Optional
 from langchain.llms import GPT4All, LlamaCpp
 import os
 import requests
-import json
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chains.question_answering import load_qa_chain
 from langchain.docstore.document import Document
 import openai
 
-embeddings = HuggingFaceEmbeddings(
-    model_name=os.environ.get("embeddings_model") or "all-MiniLM-L6-v2"
-)
-embeddings_dimension = 384
 base_url = os.environ.get("LLM_URL") or "http://localhost"
 
 

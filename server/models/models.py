@@ -29,7 +29,7 @@ class VectorStore(BaseModel, ABC):
 
 class LLM(BaseModel, ABC):
     @abstractmethod
-    def ask(self, documents: List[str], question: str) -> List[List[float]]:
+    def ask(self, documents: List[str], question: str) -> str: 
         pass
 
 
