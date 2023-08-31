@@ -1,4 +1,7 @@
 import os
+from embedding_generation.local import SentenceTransformerEmbedding
+from embedding_generation.models import ALL_MINILM_L6_V2, EmbeddingModel
+from embedding_generation.services import HuggingfaceInferenceEndpoingEmbedding
 import uvicorn
 from fastapi import FastAPI, File, HTTPException, Depends, Body, UploadFile
 from typing import List
@@ -35,7 +38,17 @@ app.add_middleware(
 )
 
 bearer_scheme = HTTPBearer()
-vector_store = WeaviateVectorStore() if os.environ.get('USE_WEAVIATE_VECTORSTORE') == 'true' else QdrantVectorStore()
+embedding_model_override = EmbeddingModel(os.environ.get("embeddings_model"), os.environ.get("embeddings_size"))
+
+embedding_model = embedding_model_override if embedding_model_override.name else ALL_MINILM_L6_V2
+
+if os.environ.get("embeddings_local"):
+    embedding_generator = SentenceTransformerEmbedding(embedding_model)
+else:
+    embedding_generator = HuggingfaceInferenceEndpoingEmbedding(embedding_model, os.environ.get("hf_token"))
+
+# TODO: Waviate module needs to be refactored to use embedding abstraction as well
+vector_store = WeaviateVectorStore() if os.environ.get('USE_WEAVIATE_VECTORSTORE') == 'true' else QdrantVectorStore(embedding_generator)
 llm = get_selected_llm()
 db = Database()
 
@@ -89,16 +102,19 @@ async def get_previews(
 
         previews: List[FilePreview] = []
         for upload_file in upload_files:
-            pdf_document = fitz.open(upload_file.filename, upload_file.file)
-            page = pdf_document.load_page(0)
-            image = page.get_pixmap()
-            image_bytes = image.tobytes()
-            image_base64 = base64.b64encode(image_bytes).decode("utf-8")
-            previews.append(
-                FilePreview(
-                    file_name=upload_file.filename, file_preview_img=image_base64
+            try:
+                pdf_document = fitz.open(upload_file.filename, upload_file.file)
+                page = pdf_document.load_page(0)
+                image = page.get_pixmap()
+                image_bytes = image.tobytes()
+                image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+                previews.append(
+                    FilePreview(
+                        file_name=upload_file.filename, file_preview_img=image_base64
+                    )
                 )
-            )
+            except Exception as e:
+                print(f'Issue creating preview for file {upload_file.filename}\nError: {e}')
         return GetPreviewsResponse(previews=previews)
     except Exception as e:
         print(e)

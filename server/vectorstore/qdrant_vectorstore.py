@@ -1,20 +1,14 @@
 import os
+from embedding_generation.models import EmbeddingGenerator
 from models.models import Document as PsychicDocument, VectorStore, AppConfig
 from typing import List, Any, Optional
 import uuid
 from qdrant_client import QdrantClient
 from langchain.docstore.document import Document
-from sentence_transformers import SentenceTransformer
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
 from qdrant_client.models import PointStruct, Distance, VectorParams, ScoredPoint
 from qdrant_client.http import models as rest
-
-
-embeddings_model = SentenceTransformer(
-    os.environ.get("embeddings_model") or "all-MiniLM-L6-v2"
-)
-embeddings_dimension = 384
 
 
 class QdrantVectorStore(VectorStore):
@@ -24,7 +18,7 @@ class QdrantVectorStore(VectorStore):
     class Config:
         arbitrary_types_allowed = True
 
-    def __init__(self):
+    def __init__(self, embeddings_model: EmbeddingGenerator):
         # self.client = Qdrant.from_documents(
         #     [],
         #     embeddings,
@@ -33,6 +27,7 @@ class QdrantVectorStore(VectorStore):
         # )
 
         super().__init__()
+        self.embeddings_model = embeddings_model
         if not os.getenv("QDRANT_URL"):
             raise Exception("QDRANT_URL must be set as an environment variable.")
         qdrant_port = os.getenv("QDRANT_PORT") or "6333"
@@ -46,7 +41,7 @@ class QdrantVectorStore(VectorStore):
             self.client.create_collection(
                 collection_name="my_documents",
                 vectors_config=VectorParams(
-                    size=embeddings_dimension, distance=Distance.COSINE
+                    size=self.embeddings_model.dimensions, distance=Distance.COSINE
                 ),
             )
         self.collection_name = "my_documents"
@@ -83,7 +78,7 @@ class QdrantVectorStore(VectorStore):
                 )
 
             # TODO: Fix this so that the vector output is of the format PointStruct expects
-            vector = embeddings_model.encode([doc.page_content])[0]
+            vector = self.embeddings_model.encode([doc.page_content])[0]
             vector = vector.tolist()
 
             points.append(
@@ -107,7 +102,7 @@ class QdrantVectorStore(VectorStore):
         return True
 
     async def query(self, query: str, app_config: AppConfig) -> List[PsychicDocument]:
-        query_vector = embeddings_model.encode([query])[0]
+        query_vector = self.embeddings_model.encode([query])[0]
         query_vector = query_vector.tolist()
         results = self.client.search(
             collection_name=self.collection_name,
