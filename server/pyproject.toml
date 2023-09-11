@@ -21,6 +21,7 @@ pymupdf = "^1.22.5"
 openai = "^0.27.8"
 supabase = "^1.0.3"
 poetry-dotenv-plugin = "^0.2.0"
+weaviate-client = "^3.22.1"
 
 [tool.poetry.scripts]
 start = "server.main:start"

@@ -173,6 +173,20 @@ tests = ["attrs[tests-no-zope]", "zope-interface"]
 tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "authlib"
+version = "1.2.1"
+description = "The ultimate Python library in building OAuth and OpenID Connect servers and clients."
+optional = false
+python-versions = "*"
+files = [
+    {file = "Authlib-1.2.1-py2.py3-none-any.whl", hash = "sha256:c88984ea00149a90e3537c964327da930779afa4564e354edfd98410bea01911"},
+    {file = "Authlib-1.2.1.tar.gz", hash = "sha256:421f7c6b468d907ca2d9afede256f068f87e34d23dd221c07d13d4c234726afb"},
+]
+
+[package.dependencies]
+cryptography = ">=3.2"
+
+[[package]]
 name = "bleach"
 version = "6.0.0"
 description = "An easy safelist-based HTML-sanitizing tool."
@@ -3711,6 +3725,17 @@ h11 = ">=0.8"
 standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)", "pyyaml (>=5.1)", "uvloop (>=0.14.0,!=0.15.0,!=0.15.1)", "watchfiles (>=0.13)", "websockets (>=10.4)"]
 
 [[package]]
+name = "validators"
+version = "0.21.0"
+description = "Python Data Validation for Humans™"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "validators-0.21.0-py3-none-any.whl", hash = "sha256:3470db6f2384c49727ee319afa2e97aec3f8fad736faa6067e0fd7f9eaf2c551"},
+    {file = "validators-0.21.0.tar.gz", hash = "sha256:245b98ab778ed9352a7269c6a8f6c2a839bed5b2a7e3e60273ce399d247dd4b3"},
+]
+
+[[package]]
 name = "virtualenv"
 version = "20.24.2"
 description = "Virtual Python Environment builder"
@@ -3729,6 +3754,26 @@ platformdirs = ">=3.9.1,<4"
 [package.extras]
 docs = ["furo (>=2023.5.20)", "proselint (>=0.13)", "sphinx (>=7.0.1)", "sphinx-argparse (>=0.4)", "sphinxcontrib-towncrier (>=0.2.1a0)", "towncrier (>=23.6)"]
 test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8)", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10)"]
+
+[[package]]
+name = "weaviate-client"
+version = "3.22.1"
+description = "A python native Weaviate client"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "weaviate-client-3.22.1.tar.gz", hash = "sha256:aff61bd3f5d74df20a62328443e3aa9c860d5330fdfb19c4d8ddc44cb604032f"},
+    {file = "weaviate_client-3.22.1-py3-none-any.whl", hash = "sha256:01843a4899a227300e570409e77628e9d1b28476313f94943c37aee3f75112e1"},
+]
+
+[package.dependencies]
+authlib = ">=1.1.0"
+requests = ">=2.28.0,<=2.31.0"
+tqdm = ">=4.59.0,<5.0.0"
+validators = ">=0.18.2,<=0.21.0"
+
+[package.extras]
+grpc = ["grpcio", "grpcio-tools"]
 
 [[package]]
 name = "webencodings"
@@ -4022,4 +4067,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "b06ccd9a1c06f6782e18f78aa51c3d33af75d74526a9f3a85bf26c6e58ab3e62"
+content-hash = "e16c74ea12fe01c58eaa755f8916c93a50e2dd2c216dc80f1b08ac900258593b"
