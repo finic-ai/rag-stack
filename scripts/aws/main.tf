@@ -175,13 +175,13 @@ resource "aws_security_group" "ragstack_server_sg" {
   }
 }
 
-resource "aws_security_group" "qdrant_sg" {
-  name_prefix = "qdrant-sg"
+resource "aws_security_group" "weaviate_sg" {
+  name_prefix = "weaviate-sg"
   vpc_id      = aws_vpc.ragstack_vpc.id
 
   ingress {
-    from_port       = 6333
-    to_port         = 6333
+    from_port       = 8080
+    to_port         = 8080
     protocol        = "tcp"
     security_groups = [aws_security_group.ragstack_server_sg.id]
   }
@@ -241,9 +241,9 @@ resource "aws_service_discovery_private_dns_namespace" "ragstack-cloudmap-namesp
   vpc  = aws_vpc.ragstack_vpc.id
 }
 
-### START QDRANT SERVICE RESOURCES ###
-resource "aws_service_discovery_service" "qdrant_service" {
-  name = "qdrant"
+### START WEAVIATE SERVICE RESOURCES ###
+resource "aws_service_discovery_service" "weaviate_service" {
+  name = "weaviate"
 
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.ragstack-cloudmap-namespace.id
@@ -255,21 +255,78 @@ resource "aws_service_discovery_service" "qdrant_service" {
   }
 }
 
-resource "aws_ecs_task_definition" "qdrant_task" {
-  family                   = "qdrant-task"
+resource "aws_cloudwatch_log_group" "weaviate_container_logs" {
+  name              = "weaviate-container"
+  retention_in_days = 7
+}
+
+resource "aws_ecs_task_definition" "weaviate_task" {
+  family                   = "weaviate-task"
   network_mode             = "awsvpc"
-  cpu                      = 256
-  memory                   = 1024
+  cpu                      = 512
+  memory                   = 2048
   requires_compatibilities = ["FARGATE"]
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   container_definitions = jsonencode([
     {
-      name      = "qdrant-container"
-      image     = "qdrant/qdrant:latest"
+      name      = "weaviate-container"
+      image     = "semitechnologies/weaviate:latest"
       essential = true
       portMappings = [
         {
-          containerPort = 6333
-          hostPort      = 6333
+          containerPort = 8080
+          hostPort      = 8080
+        },
+        {
+          containerPort = 50051
+          hostPort      = 50051
+        },
+        {
+          containerPort = 2112
+          hostPort      = 2112
+        }
+      ],
+      "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "weaviate-container",
+            "awslogs-region": "us-east-1",
+            "awslogs-create-group": "true",
+            "awslogs-stream-prefix": "ecs"
+          }
+        },
+      "environment": [
+        {
+          "name": "QUERY_DEFAULTS_LIMIT",
+          "value": "25"
+        },
+        {
+          "name": "PERSISTENCE_DATA_PATH",
+          "value": "/var/lib/weaviate"
+        },
+        {
+          "name": "DEFAULT_VECTORIZER_MODULE",
+          "value": "none"
+        },
+        {
+          "name": "ENABLE_MODULES",
+          "value": ""
+        },
+        {
+          "name": "CLUSTER_HOSTNAME",
+          "value": "node1"
+        },
+        {
+          "name": "AUTHENTICATION_APIKEY_ENABLED",
+          "value": "true"
+        },
+        {
+          "name": "AUTHENTICATION_APIKEY_ALLOWED_KEYS",
+          "value": "var.weaviate_authentication_apikey_allowed_keys"
+        },
+        {
+          "name": "AUTHENTICATION_APIKEY_USERS",
+          "value": "var.weaviate_authentication_apikey_users"
         }
       ]
 
@@ -277,21 +334,21 @@ resource "aws_ecs_task_definition" "qdrant_task" {
   ])
 }
 
-resource "aws_ecs_service" "qdrant" {
-  name            = "qdrant"
+resource "aws_ecs_service" "weaviate_service" {
+  name            = "weaviate-service"
   cluster         = aws_ecs_cluster.ragstack-cluster.id
-  task_definition = aws_ecs_task_definition.qdrant_task.arn
+  task_definition = aws_ecs_task_definition.weaviate_task.arn
   desired_count   = 1
   launch_type     = "FARGATE"
   network_configuration {
     subnets         = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
-    security_groups = [aws_security_group.qdrant_sg.id]
+    security_groups = [aws_security_group.weaviate_sg.id]
   }
   service_registries {
-    registry_arn = aws_service_discovery_service.qdrant_service.arn
+    registry_arn = aws_service_discovery_service.weaviate_service.arn
   }
 }
-### END QDRANT SERVICE RESOURCES ###
+### END WEAVIATE SERVICE RESOURCES ###
 
 ### START LLM SERVICE RESOURCES ###
 resource "aws_service_discovery_service" "llm_service" {
@@ -454,12 +511,16 @@ resource "aws_ecs_task_definition" "ragstack_server_task" {
       ]
       environment = [
         {
-          "name" : "QDRANT_URL",
-          "value" = "http://${aws_service_discovery_service.qdrant_service.name}.${aws_service_discovery_private_dns_namespace.ragstack-cloudmap-namespace.name}"
+          "name" : "WEAVIATE_URL",
+          "value" = "http://${aws_service_discovery_service.weaviate_service.name}.${aws_service_discovery_private_dns_namespace.ragstack-cloudmap-namespace.name}"
         },
         {
-          "name" : "QDRANT_PORT",
-          "value" : "6333"
+          "name" : "WEAVIATE_PORT",
+          "value" : "8080"
+        },
+        {
+          "name":  "USE_WEAVIATE_VECTORSTORE",
+          "value": "true"
         },
         {
           "name" : "LLM_URL",
