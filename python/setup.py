@@ -9,7 +9,7 @@ with open(path.join(this_directory, 'README.md')) as f:
 setup(
     name='ragstack',
     version='0.0.1',
-    description='Ragstack is a one-click solution to deploy the retrieval augmented generation stack on your own infrastructure with open-source LLMs.',
+    description='LZB1.1.3',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='Ayan Bandyopadhyay',
